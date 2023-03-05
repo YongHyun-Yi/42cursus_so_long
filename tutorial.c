@@ -1,6 +1,6 @@
 
 #include "so_long.h"
-#include "inilibx-linux/mlx.h"
+#include "minilibx-linux/mlx.h"
 
 int main()
 {

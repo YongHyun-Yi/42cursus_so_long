@@ -62,11 +62,11 @@ BONUS_OBJS = $(BONUS_SRCS:.c=.o)
 all: $(NAME)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(INC) -O3 -c $< -o $@
+	@$(CC) $(CFLAGS) $(INC) -O3 -c $< -o $@
 	@echo $(CYAN)"Compile " $< " to " $@$(EOC)
 
 $(NAME): $(LIBFT_A) $(MLX_A) $(MANDATORY_OBJS)
-		$(CC) $(CFLAGS) $^ $(LIBFT_A) $(MLX_A) $(MLX_FLAGS) -o $@
+		@$(CC) $(CFLAGS) $^ $(LIBFT_A) $(MLX_A) $(MLX_FLAGS) -o $@
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 		@echo "Now your program in: "$(YELLOW)$(UNAME)!$(EOC) $(EMOJI)$(EMOJI)$(EMOJI)"...";
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
@@ -76,6 +76,8 @@ $(LIBFT_A):
 
 $(MLX_A):
 		make -C $(MLX_DIR)
+		
+# cp $(MLX_A) libmlx.dylib
 
 # bonus: $(BONUS_NAME)
 

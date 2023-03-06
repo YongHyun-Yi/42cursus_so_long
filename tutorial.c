@@ -1,6 +1,7 @@
 
 #include "so_long.h"
-#include "minilibx-linux/mlx.h"
+// #include "minilibx-linux/mlx.h"
+#include "minilibx_mms_20200219/mlx.h"
 
 typedef struct s_pos
 {
@@ -24,7 +25,7 @@ int deal_key(int key, void *param)
 	else if (key == 65363) // right
 		player_pos->x++;
 	mlx_pixel_put(player_pos->mlx_ptr, player_pos->win_ptr, player_pos->x, player_pos->y, 0xFFFFFF);
-	// ft_printf("key code: %d\n", key);
+	ft_printf("key code: %d\n", key);
 	return (0);
 }
 

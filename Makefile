@@ -63,19 +63,20 @@ all: $(NAME)
 
 %.o: %.c
 	@$(CC) $(CFLAGS) $(INC) -O3 -c $< -o $@
-	@echo $(CYAN)"Compile " $< " to " $@$(EOC)
+# @echo $(CYAN)"Compile " $< " to " $@$(EOC)
 
 $(NAME): $(LIBFT_A) $(MLX_A) $(MANDATORY_OBJS)
 		@$(CC) $(CFLAGS) $^ $(LIBFT_A) $(MLX_A) $(MLX_FLAGS) -o $@
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
-		@echo "Now your program in: "$(YELLOW)$(UNAME)!$(EOC) $(EMOJI)$(EMOJI)$(EMOJI)"...";
+		@echo $(YELLOW)"                       SO_LONG DONE"$(EOC)
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
+		@echo "Now your program in: "$(YELLOW)$(UNAME)!$(EOC) $(EMOJI)$(EMOJI)$(EMOJI)"...\n";
 
 $(LIBFT_A):
-		make -C ./libft
+		@make --no-print-directory -C ./libft
 
 $(MLX_A):
-		make -C $(MLX_DIR)
+		@make --no-print-directory -C $(MLX_DIR)
 		
 # cp $(MLX_A) libmlx.dylib
 
@@ -85,15 +86,18 @@ $(MLX_A):
 # 		$(CC) $(CFLAGS) -L./libft -lft $^ -o $@
 
 clean:
-		cd libft; make clean
-		cd $(MLX_DIR); make clean
-		$(RM) ${MANDATORY_OBJS} ${BONUS_OBJS}
+		@cd libft; make --no-print-directory clean
+		@cd $(MLX_DIR); make --no-print-directory clean
+		@$(RM) ${MANDATORY_OBJS} ${BONUS_OBJS}
 
 fclean:
-		cd libft; make fclean
-		make clean
-		$(RM) $(NAME) $(BONUS_NAME)
+		@cd libft; make --no-print-directory fclean
+		@make --no-print-directory clean
+		@$(RM) $(NAME) $(BONUS_NAME)
+		@echo $(GREEN)"\n==========================================================\n"$(EOC)
+		@echo $(YELLOW)"                       SO_LONG FCLEAN"
+		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 
 re:
-		make fclean
-		make all
+		@make fclean
+		@make all

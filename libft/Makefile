@@ -10,6 +10,23 @@
 #                                                                              #
 # **************************************************************************** #
 
+#-------------------------------------------
+
+BLACK       =   "\033[0;30m"
+GRAY        =   "\033[1;30m"
+RED         =   "\033[1;31m"
+GREEN       =   "\033[0;32m"
+YELLOW      =   "\033[1;33m"
+PURPLE      =   "\033[0;35m"
+CYAN        =   "\033[1;36m"
+WHITE       =   "\033[1;37m"
+EOC         =   "\033[0;0m"
+LINE_CLEAR  =   "\x1b[1A\x1b[M"
+
+GREEN_BACK	=	"\033[102m"
+
+#-------------------------------------------
+
 CC = cc
 
 CFLAGS = -Wall -Wextra -Werror -Iincludes
@@ -103,13 +120,23 @@ RM = rm -f
 all: ${NAME}
 
 ${NAME}: ${ALL_OBJS}
-		ar crs ${NAME} ${ALL_OBJS}
+		@ar crs ${NAME} ${ALL_OBJS}
+		@echo $(GREEN)"\n==========================================================\n"$(EOC)
+		@echo $(YELLOW)"                       FT_LIBFT DONE"
+		@echo $(GREEN)"\n==========================================================\n"$(EOC)
+
+.c.o:
+		@$(CC) $(CFLAGS) -c $< -o $@
+# @echo $(CYAN)"Compile " $<$(EOC)
 
 clean:
-		${RM} ${ALL_OBJS}
+		@${RM} ${ALL_OBJS}
 
 fclean: clean
-		${RM} ${NAME}
+		@${RM} ${NAME}
+		@echo $(GREEN)"\n==========================================================\n"$(EOC)
+		@echo $(YELLOW)"                       FT_LIBFT FCLEAN"
+		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 
 re:
 		make fclean

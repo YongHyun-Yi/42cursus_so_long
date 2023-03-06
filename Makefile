@@ -32,7 +32,7 @@ NAME = so_long
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
-	MLX_DIR		:= ./minilibx-mms_20200219
+	MLX_DIR		:= ./minilibx_mms_20200219
 	MLX_A		:= $(MLX_DIR)/libmlx.dylib
 	MLX_FLAGS	:= -L$(MLX_DIR) -framework OpenGL -framework AppKit
 	EMOJI		:= 🍎

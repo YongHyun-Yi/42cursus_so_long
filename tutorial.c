@@ -1,7 +1,6 @@
 
 #include "so_long.h"
-// #include "minilibx-linux/mlx.h"
-#include "minilibx_mms_20200219/mlx.h"
+#include "mlx.h"
 
 typedef struct s_pos
 {
@@ -35,6 +34,7 @@ int main()
 	void *win_ptr;
 	t_pos player_pos;
 
+	ft_printf("cur os: %s\n", CUR_OS);
 	mlx_ptr = mlx_init();
 	win_ptr = mlx_new_window(mlx_ptr, 500, 500, "mlx 42");
 	player_pos.mlx_ptr = mlx_ptr;

@@ -45,7 +45,7 @@ else
 	$(error "This OS ($(UNAME)) not supported")
 endif
 
-INC += -I$(MLX_DIR)
+INC += -I$(MLX_DIR) -Ios_$(UNAME)
 
 #-------------------------------------------
 
@@ -77,10 +77,9 @@ $(LIBFT_A):
 
 $(MLX_A):
 		@make --no-print-directory -C $(MLX_DIR)
-		ifeq ($(UNAME), Darwin)
-			install_name_tool -id $(MLX_DIR)
-		
-# cp $(MLX_A) libmlx.dylib
+ifeq ($(UNAME), Darwin)
+	install_name_tool -id $(MLX_A) $(MLX_A)
+endif
 
 # bonus: $(BONUS_NAME)
 

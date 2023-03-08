@@ -67,13 +67,13 @@ int deal_key(int key, void *param)
 	t_pos *player_pos;
 
 	player_pos = (t_pos *)param;
-	if (key == 65362) // up
+	if (key == KEY_UP) // up
 		player_pos->y--;
-	else if (key == 65364) // down
+	else if (key == KEY_DOWN) // down
 		player_pos->y++;
-	else if (key == 65361) // left
+	else if (key == KEY_LEFT) // left
 		player_pos->x--;
-	else if (key == 65363) // right
+	else if (key == KEY_RIGHT) // right
 		player_pos->x++;
 	mlx_pixel_put(player_pos->mlx_ptr, player_pos->win_ptr, player_pos->x, player_pos->y, 0xFFFFFF);
 	ft_printf("key code: %d\n", key);

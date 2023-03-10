@@ -45,7 +45,7 @@ else
 	$(error "This OS ($(UNAME)) not supported")
 endif
 
-INC += -I$(MLX_DIR) -Ios_$(UNAME)
+INC += -I$(MLX_DIR) -I./includes/os_$(UNAME)
 
 #-------------------------------------------
 

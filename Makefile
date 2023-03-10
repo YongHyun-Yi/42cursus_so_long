@@ -32,12 +32,12 @@ NAME = so_long
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
-	MLX_DIR		:= ./minilibx_mms_20200219
+	MLX_DIR		:= ./mlx_mms_mac
 	MLX_A		:= $(MLX_DIR)/libmlx.dylib
 	MLX_FLAGS	:= -L$(MLX_DIR) -framework OpenGL -framework AppKit
 	EMOJI		:= 🍎
 else ifeq ($(UNAME), Linux)
-	MLX_DIR		:= ./minilibx-linux
+	MLX_DIR		:= ./mlx_linux
 	MLX_A		:= $(MLX_DIR)/libmlx.a
 	MLX_FLAGS	:= -L$(MLX_DIR) -lXext -lX11 -lm -lz
 	EMOJI		:= 🐧
@@ -49,7 +49,8 @@ INC += -I$(MLX_DIR) -I./includes/os_$(UNAME)
 
 #-------------------------------------------
 
-MANDATORY_SRCS = tutorial.c
+SERVER_SRCS = $(wildcard src/*.c)
+# MANDATORY_SRCS = tutorial.c
 MANDATORY_OBJS = $(MANDATORY_SRCS:.c=.o)
 
 #-------------------------------------------

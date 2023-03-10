@@ -95,7 +95,7 @@ int esc_check(t_pos *player_pos)
 	if (esc_pressed)
 	{
 		mlx_destroy_window(player_pos->mlx_ptr, player_pos->win_ptr);
-		mlx_destroy_display(player_pos->mlx_ptr);
+		// mlx_destroy_display(player_pos->mlx_ptr); // Mac 버전 mlx에서는 구현되지 않은 함수
 	}
 	if (key_pressed)
 	{
@@ -263,4 +263,5 @@ int main()
 	mlx_string_put(mlx_ptr, win_ptr, 100, 20, my_color, "This is First Text!");
 	mlx_string_put(mlx_ptr, win_ptr, 100, 150, my_color, "This is Second Text!");
 	mlx_loop(mlx_ptr);
+	
 }

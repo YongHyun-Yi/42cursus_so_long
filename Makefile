@@ -49,7 +49,7 @@ INC += -I$(MLX_DIR) -I./includes/os_$(UNAME)
 
 #-------------------------------------------
 
-SERVER_SRCS = $(wildcard src/*.c)
+MANDATORY_SRCS = $(wildcard src/*.c)
 # MANDATORY_SRCS = tutorial.c
 MANDATORY_OBJS = $(MANDATORY_SRCS:.c=.o)
 

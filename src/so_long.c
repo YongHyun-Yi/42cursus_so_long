@@ -17,12 +17,21 @@ int main(int argc, char *argv[])
 	
 	*/
 
+	if (ft_strlen(argv[1]) < 4 || ft_strncmp(argv[1] + ft_strlen(argv[1]) - 4, ".ber", 4))
+	{
+		ft_printf("file type error\n");
+		return (0);
+	}
+
 	// ------------------- gnl 로 읽어와서 리스트에 저장하는 부분
 	int fd;
 	fd = open(argv[1], O_RDONLY);
 
 	if (fd < 0)
+	{
+		ft_printf("open error\n");
 		return (0); // fd error
+	}
 	
 	size_t map_width = 0;
 	size_t map_height = 0;

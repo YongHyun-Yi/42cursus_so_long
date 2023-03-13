@@ -1,6 +1,6 @@
 
 #include "so_long.h"
-#include "../mlx_linux/mlx.h"
+// #include "../mlx_linux/mlx.h"
 
 int main(int argc, char *argv[])
 {
@@ -17,6 +17,12 @@ int main(int argc, char *argv[])
 	
 	*/
 
+	if (argc != 2)
+	{
+		ft_printf("argv error\n");
+		return (0);
+	}
+
 	if (ft_strlen(argv[1]) < 4 || ft_strncmp(argv[1] + ft_strlen(argv[1]) - 4, ".ber", 4))
 	{
 		ft_printf("file type error\n");
@@ -25,7 +31,7 @@ int main(int argc, char *argv[])
 
 	// ------------------- gnl 로 읽어와서 리스트에 저장하는 부분
 	int fd;
-	fd = open(argv[1], O_RDONLY);
+	fd = open(argv[1], O_RDONLY); // Mac에서는 루트디렉토리 기준으로 경로를 적어줘야 한다 대체 왜.....
 
 	if (fd < 0)
 	{
@@ -272,6 +278,13 @@ int main(int argc, char *argv[])
 				mlx_put_image_to_window(mlx_ptr, win_ptr, spr_player1, i * img_width, j * img_height);
 		}
 	}
+
+	// mlx_key_hook 이랑 연결하기...
+	// key_hook부터 연결하고 특정키만 mlx_hook로 덮어쓰면 해당 키는 후자로 후킹될까...?
+	// mlx_key_hook 에서 조건부로 배열 업데이트
+	// 업데이트 된 배열을 참조해서 다시 그리기
+
+	// mlx_key_hook(win_ptr); // -> 결국 void *param에 넣을 구조체가 필요하다... 공통적으로 쓰일애들 파악하기 ex) map_arr
 
 	mlx_loop(mlx_ptr);
 }

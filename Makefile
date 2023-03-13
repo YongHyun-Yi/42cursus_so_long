@@ -67,7 +67,7 @@ all: $(NAME)
 # @echo $(CYAN)"Compile " $< " to " $@$(EOC)
 
 $(NAME): $(LIBFT_A) $(MLX_A) $(MANDATORY_OBJS)
-		@$(CC) $(CFLAGS) $^ $(LIBFT_A) $(MLX_A) $(MLX_FLAGS) -o $@
+		@$(CC) $(CFLAGS) $^ $(LIBFT_A) $(MLX_A) $(MLX_FLAGS) -g -o $@
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 		@echo $(YELLOW)"                       SO_LONG DONE"$(EOC)
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)

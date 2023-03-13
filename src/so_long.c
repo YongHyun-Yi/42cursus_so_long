@@ -2,40 +2,67 @@
 #include "so_long.h"
 #include "../mlx_linux/mlx.h"
 
-int setup_game_res(void *mlx_ptr, t_game_res *game_res)
+int load_xmp_file(void *mlx_ptr, t_img_data *img_data, char *path)
 {
-	(game_res->spr_empty).img_ptr = mlx_xpm_file_to_image(mlx_ptr, "./res/sprite/empty_space.xpm", &((game_res->spr_empty).img_width), &((game_res->spr_empty).img_height));
-	(game_res->spr_wall).img_ptr = mlx_xpm_file_to_image(mlx_ptr, "./res/sprite/wall.xpm", &((game_res->spr_wall).img_width), &((game_res->spr_wall).img_height));
-	(game_res->spr_collectible).img_ptr = mlx_xpm_file_to_image(mlx_ptr, "./res/sprite/collectible.xpm", &((game_res->spr_collectible).img_width), &((game_res->spr_collectible).img_height));
-	(game_res->spr_exit).img_ptr = mlx_xpm_file_to_image(mlx_ptr, "./res/sprite/exit.xpm", &((game_res->spr_exit).img_width), &((game_res->spr_exit).img_height));
-	(game_res->spr_player1).img_ptr = mlx_xpm_file_to_image(mlx_ptr, "./res/sprite/player1.xpm", &((game_res->spr_player1).img_width), &((game_res->spr_player1).img_height));
-	if ((game_res->spr_empty).img_ptr && (game_res->spr_wall).img_ptr && (game_res->spr_collectible).img_ptr && (game_res->spr_exit).img_ptr && (game_res->spr_player1).img_ptr)
-		return (1);
-	return (0);
+	img_data->img_ptr = mlx_xpm_file_to_image(mlx_ptr, path, &img_data->img_width, &img_data->img_height);
+	if (!img_data->img_ptr)
+		return (0);
+	return (1);
 }
 
-void draw_update(void *mlx_ptr, void *win_ptr, int map_height, int map_width, char **map_arr, t_game_res game_res)
+int load_game_res(void *mlx_ptr, t_game_res *game_res)
+{
+	if (!load_xmp_file(mlx_ptr, &game_res->spr_empty, "./res/sprite/empty_space.xpm"))
+		return (0);
+	if (!load_xmp_file(mlx_ptr, &game_res->spr_wall, "./res/sprite/wall.xpm"))
+		return (0);
+	if (!load_xmp_file(mlx_ptr, &game_res->spr_collectible, "./res/sprite/collectible.xpm"))
+		return (0);
+	if (!load_xmp_file(mlx_ptr, &game_res->spr_exit, "./res/sprite/exit.xpm"))
+		return (0);
+	if (!load_xmp_file(mlx_ptr, &game_res->spr_player1, "./res/sprite/player1.xpm"))
+		return (0);
+	return (1);
+}
+
+void draw_image(void *mlx_ptr, void *win_ptr, t_img_data img_data, t_vec2d pos)
+{
+	mlx_put_image_to_window(mlx_ptr, win_ptr, img_data.img_ptr, pos.x * img_data.img_width, pos.y * img_data.img_height);
+}
+
+void draw_horizontal(t_game_data game_data, int y)
+{
+	t_vec2d cur_pos;
+	char *map_hor_arr;
+	int x;
+	
+	cur_pos.y = y;
+	map_hor_arr = game_data.map_arr[y];
+	x = 0;
+	while (x < game_data.map_width)
+	{
+		cur_pos.x = x;
+		if (map_hor_arr[x] == '0')
+			draw_image(game_data.mlx_ptr, game_data.win_ptr, game_data.game_res.spr_empty, cur_pos);
+		else if (map_hor_arr[x] == '1')
+			draw_image(game_data.mlx_ptr, game_data.win_ptr, game_data.game_res.spr_wall, cur_pos);
+		else if (map_hor_arr[x] == 'C')
+			draw_image(game_data.mlx_ptr, game_data.win_ptr, game_data.game_res.spr_collectible, cur_pos);
+		else if (map_hor_arr[x] == 'E')
+			draw_image(game_data.mlx_ptr, game_data.win_ptr, game_data.game_res.spr_exit, cur_pos);
+		else if (map_hor_arr[x] == 'P')
+			draw_image(game_data.mlx_ptr, game_data.win_ptr, game_data.game_res.spr_player1, cur_pos);
+		x++;
+	}
+}
+
+void draw_update(t_game_data game_data)
 {
 	int y;
-	int x;
 	y = 0;
-	while (y < map_height)
+	while (y < game_data.map_height)
 	{
-		x = 0;
-		while (x < map_width)
-		{
-			if (map_arr[y][x] == '0')
-				mlx_put_image_to_window(mlx_ptr, win_ptr, (game_res.spr_empty).img_ptr, x * (game_res.spr_empty).img_width, y * (game_res.spr_empty).img_height);
-			else if (map_arr[y][x] == '1')
-				mlx_put_image_to_window(mlx_ptr, win_ptr, (game_res.spr_wall).img_ptr, x * (game_res.spr_wall).img_width, y * (game_res.spr_wall).img_height);
-			else if (map_arr[y][x] == 'C')
-				mlx_put_image_to_window(mlx_ptr, win_ptr, (game_res.spr_collectible).img_ptr, x * (game_res.spr_collectible).img_width, y * (game_res.spr_collectible).img_height);
-			else if (map_arr[y][x] == 'E')
-				mlx_put_image_to_window(mlx_ptr, win_ptr, (game_res.spr_exit).img_ptr, x * (game_res.spr_exit).img_width, y * (game_res.spr_exit).img_height);
-			else if (map_arr[y][x] == 'P')
-				mlx_put_image_to_window(mlx_ptr, win_ptr, (game_res.spr_player1).img_ptr, x * (game_res.spr_player1).img_width, y * (game_res.spr_player1).img_height);
-			x++;
-		}
+		draw_horizontal(game_data, y);
 		y++;
 	}
 }
@@ -288,41 +315,23 @@ int main(int argc, char *argv[])
 	
 	// ------------- mlx 세팅
 	t_game_data game_data;
-	// game_data.mlx_ptr = mlx_init();
-	// game_data.win_ptr = mlx_new_window(game_data.mlx_ptr, game_data.map_width * 32, map_height * 32, "so_long");
-	void *mlx_ptr;
-	void *win_ptr;
-	mlx_ptr = mlx_init();
-	win_ptr = mlx_new_window(mlx_ptr, map_width * 32, map_height * 32, "so_long");
-	int img_width = 0;
-	int img_height = 0;
+	game_data.mlx_ptr = mlx_init();
+	game_data.map_width = map_width;
+	game_data.map_height = map_height;
+	game_data.map_arr = map_arr;
+	game_data.win_ptr = mlx_new_window(game_data.mlx_ptr, game_data.map_width * 32, game_data.map_height * 32, "so_long");
+	
+	// void *mlx_ptr;
+	// void *win_ptr;
+	// mlx_ptr = mlx_init();
+	// win_ptr = mlx_new_window(mlx_ptr, map_width * 32, map_height * 32, "so_long");
 
-	// void *spr_empty = mlx_xpm_file_to_image(mlx_ptr, "./res/sprite/empty_space.xpm", &img_width, &img_height); // 여기서 상대위치는 소스파일이 아니라 실행파일 기준으로 한다...어째서??
-	// void *spr_wall = mlx_xpm_file_to_image(mlx_ptr, "./res/sprite/wall.xpm", &img_width, &img_height);
-	// void *spr_collectible = mlx_xpm_file_to_image(mlx_ptr, "./res/sprite/collectible.xpm", &img_width, &img_height);
-	// void *spr_exit = mlx_xpm_file_to_image(mlx_ptr, "./res/sprite/exit.xpm", &img_width, &img_height);
-	// void *spr_player1 = mlx_xpm_file_to_image(mlx_ptr, "./res/sprite/player1.xpm", &img_width, &img_height);
-	if (!setup_game_res(mlx_ptr, &game_data.game_res))
+	// ------------- 리소스 불러오는 부분
+	if (!load_game_res(game_data.mlx_ptr, &game_data.game_res))
 		return (0);
 	
 	// ------------- 맵 배열 참고하여 화면 그리는 부분
-	// for (int j = 0; j < map_height; j++)
-	// {
-	// 	for (int i = 0; i < map_width; i++)
-	// 	{
-	// 		if (map_arr[j][i] == '0')
-	// 			mlx_put_image_to_window(mlx_ptr, win_ptr, spr_empty, i * img_width, j * img_height);
-	// 		else if (map_arr[j][i] == '1')
-	// 			mlx_put_image_to_window(mlx_ptr, win_ptr, spr_wall, i * img_width, j * img_height);
-	// 		else if (map_arr[j][i] == 'C')
-	// 			mlx_put_image_to_window(mlx_ptr, win_ptr, spr_collectible, i * img_width, j * img_height);
-	// 		else if (map_arr[j][i] == 'E')
-	// 			mlx_put_image_to_window(mlx_ptr, win_ptr, spr_exit, i * img_width, j * img_height);
-	// 		else if (map_arr[j][i] == 'P')
-	// 			mlx_put_image_to_window(mlx_ptr, win_ptr, spr_player1, i * img_width, j * img_height);
-	// 	}
-	// }
-	draw_update(mlx_ptr, win_ptr, map_height, map_width, map_arr, game_data.game_res);
+	draw_update(game_data);
 
 	// mlx_key_hook 이랑 연결하기...
 	// key_hook부터 연결하고 특정키만 mlx_hook로 덮어쓰면 해당 키는 후자로 후킹될까...?
@@ -332,5 +341,5 @@ int main(int argc, char *argv[])
 	// mlx_key_hook(win_ptr); // -> 결국 void *param에 넣을 구조체가 필요하다...
 	// 공통적으로 쓰일애들 파악하기 ex) mlx_ptr, win_ptr, map_arr(width, height), img_stat(void *img_ptr, char *img_path, int img_width, int img_height), game_resources
 
-	mlx_loop(mlx_ptr);
+	mlx_loop(game_data.mlx_ptr);
 }

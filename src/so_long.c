@@ -2,6 +2,22 @@
 #include "so_long.h"
 #include "../mlx_linux/mlx.h"
 
+// 파싱 함수
+// gnl을 리스트에 저장한다
+// gnl로 읽어온 문자열에서 유효하지 않은 문자가 있는지 체크한다
+// gnl로 읽어온 문자열이 직사각형인지 체크한다
+// 이증배열 사이즈가될 map_height를 증가시킨다
+// 이중배열로 옮겨담는다
+// 오브젝트 갯수를 센다 (여기서 플레이어 위치를 설정)
+// 플레이어 위치를 기반으로 DFS 수행
+// 전부 통과하면 draw update 한번 수행후 loop 진행
+//
+// event_hook 함수
+// 현재 플레이어 위치를 기준으로 이동가능한지 체크
+// 이동가능하면 배열을 변경시킴
+// 수집품이라면 수집품갯수를 줄임
+// 출구라면 수집품갯수에 따라 조건분기
+
 int load_xmp_file(void *mlx_ptr, t_img_data *img_data, char *path)
 {
 	img_data->img_ptr = mlx_xpm_file_to_image(mlx_ptr, path, &img_data->img_width, &img_data->img_height);
@@ -35,7 +51,7 @@ void draw_horizontal(t_game_data game_data, int y)
 	t_vec2d cur_pos;
 	char *map_hor_arr;
 	int x;
-	
+
 	cur_pos.y = y;
 	map_hor_arr = game_data.map_arr[y];
 	x = 0;
@@ -65,6 +81,52 @@ void draw_update(t_game_data game_data)
 		draw_horizontal(game_data, y);
 		y++;
 	}
+}
+
+int is_valid_characters(char *str, char *charset)
+{
+	while (str)
+	{
+		if (ft_strchr(charset, *str) == NULL)
+			return (0);
+	}
+	return (1);
+}
+
+int gnl_to_list(char *map_file_path, int *map_width, int *map_height)
+{
+	int fd;
+	t_list *map_list;
+	t_list *new_node;
+	char *gnl;
+
+	fd = open(map_file_path, O_RDONLY);
+	if (fd < 0)
+		return (0);
+	map_list = NULL;
+	gnl = get_next_line(fd);
+	*map_width = ft_strlen(gnl) - (ft_strchr(gnl, '\n') != 0);
+	while (gnl)
+	{
+		if (!is_valid_characters(gnl, "01CEP"))
+			return (0);
+		if (*map_width != ft_strlen(gnl) - (ft_strchr(gnl, '\n') != 0))
+			return (0);
+		new_node = ft_lstnew(gnl);
+		if (!new_node)
+			return (0);
+		ft_lstadd_back(&map_list, new_node);
+		*map_height++;
+		gnl = get_next_line(fd);
+	}
+	close(fd);
+	return (1);
+}
+// 옮기기만 하고 체크는 다른함수에서 하는게 나은지...?
+
+int list_to_map_arr(t_game_data game_data)
+{
+	game_data.map_arr = (char **)malloc(sizeof(char *) * game_data.map_height);
 }
 
 int main(int argc, char *argv[])
@@ -315,6 +377,9 @@ int main(int argc, char *argv[])
 	
 	// ------------- mlx 세팅
 	t_game_data game_data;
+
+	ft_bzero(game_data, sizeof(t_game_data));
+	// 이 타이밍에서 구조체 들고 파싱함수로 들어가야 map_width, map_height, map_arr에 넣어줄수있음
 	game_data.mlx_ptr = mlx_init();
 	game_data.map_width = map_width;
 	game_data.map_height = map_height;

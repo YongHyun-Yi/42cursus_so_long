@@ -1,6 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   so_long.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/03/14 11:34:40 by yonghyle          #+#    #+#             */
+/*   Updated: 2023/03/14 17:17:08 by yonghyle         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "so_long.h"
-#include "../mlx_linux/mlx.h"
+// #include "../mlx_linux/mlx.h"
 
 // 파싱 함수
 // gnl을 리스트에 저장한다
@@ -39,6 +50,31 @@ int load_game_res(void *mlx_ptr, t_game_res *game_res)
 	if (!load_xmp_file(mlx_ptr, &game_res->spr_player1, "./res/sprite/player1.xpm"))
 		return (0);
 	return (1);
+}
+
+t_vec2d *get_player_pos(t_game_data game_data)
+{
+	int y;
+	int x;
+	t_vec2d *pos;
+
+	pos = (t_vec2d *)malloc(sizeof(t_vec2d));
+	y = 0;
+	while (y < game_data.map_height)
+	{
+		x = 0;
+		while (x < game_data.map_width)
+		{
+			if (game_data.map_arr[y][x] == 'P')
+			{
+				pos->x = x;
+				pos->y = y;
+				return (pos);
+			}
+			x++;
+		}
+		y++;
+	}
 }
 
 void draw_image(void *mlx_ptr, void *win_ptr, t_img_data img_data, t_vec2d pos)
@@ -83,17 +119,236 @@ void draw_update(t_game_data game_data)
 	}
 }
 
-int is_valid_characters(char *str, char *charset)
+int is_valid_characters(t_game_data game_data)
 {
-	while (str)
+	char *charset;
+	int y;
+	int x;
+
+	charset = "01CEP";
+	y = 0;
+	while (y < game_data.map_height)
 	{
-		if (ft_strchr(charset, *str) == NULL)
-			return (0);
+		x = 0;
+		while (x < game_data.map_width)
+		{
+			if (ft_strchr(charset, game_data.map_arr[y][x]) == NULL)
+				return (0);
+			x++;
+		}
+		y++;
 	}
 	return (1);
 }
 
-int gnl_to_list(char *map_file_path, int *map_width, int *map_height)
+int is_rectangle(t_game_data game_data)
+{
+	int y;
+	size_t len;
+
+	len = 0;
+	y = 0;
+	while (y < game_data.map_height)
+	{
+		if (len == 0)
+			len = ft_strlen(game_data.map_arr[y]) - (ft_strchr(game_data.map_arr[y], '\n') > 0);
+		else if (len != ft_strlen(game_data.map_arr[y]) - (ft_strchr(game_data.map_arr[y], '\n') > 0))
+			return (0);
+		y++;
+	}
+	return (1);
+}
+
+int is_wall_closed(t_game_data game_data)
+{
+	int y;
+	int x;
+
+	y = 0;
+	while (y < game_data.map_height)
+	{
+		x = 0;
+		while (x < game_data.map_width)
+		{
+			if ((y == 0 || y == game_data.map_height - 1) || (x == 0 || x == game_data.map_width - 1))
+			{
+				if (game_data.map_arr[y][x] != '1')
+				{
+					return (0);
+				}
+			}
+			x++;
+		}
+		y++;
+	}
+	return (1);
+}
+
+int get_collectible_cnt(t_game_data game_data)
+{
+	int y;
+	int x;
+	int cnt;
+
+	cnt = 0;
+	y = 0;
+	while (y < game_data.map_height)
+	{
+		x = 0;
+		while (x < game_data.map_width)
+		{
+			if (game_data.map_arr[y][x] != 'C')
+				cnt++;
+			x++;
+		}
+		y++;
+	}
+	return (cnt);
+}
+
+int get_exit_cnt(t_game_data game_data)
+{
+	int y;
+	int x;
+	int cnt;
+
+	cnt = 0;
+	y = 0;
+	while (y < game_data.map_height)
+	{
+		x = 0;
+		while (x < game_data.map_width)
+		{
+			if (game_data.map_arr[y][x] != 'E')
+				cnt++;
+			x++;
+		}
+		y++;
+	}
+	return (cnt);
+}
+
+int get_player_cnt(t_game_data game_data)
+{
+	int y;
+	int x;
+	int cnt;
+
+	cnt = 0;
+	y = 0;
+	while (y < game_data.map_height)
+	{
+		x = 0;
+		while (x < game_data.map_width)
+		{
+			if (game_data.map_arr[y][x] != 'P')
+				cnt++;
+			x++;
+		}
+		y++;
+	}
+	return (cnt);
+}
+
+int is_valid_objcnt(t_game_data game_data)
+{
+	if (get_collectible_cnt(game_data) == 0 || get_exit_cnt(game_data) == 0 || get_exit_cnt(game_data) > 1 || get_player_cnt(game_data) == 0 || get_player_cnt(game_data) > 1)
+		return (0);
+	return (1);
+}
+
+int my_dfs(t_game_data game_data, char **visit_arr, char **map_arr, t_list *dfs_stack)
+{
+	t_list *cur_node;
+	t_vec2d *cur_pos;
+	t_list *new_node;
+	t_vec2d *new_pos;
+	size_t can_exit;
+	size_t remain_c;
+
+	can_exit = 0;
+	remain_c = 0;
+	while (dfs_stack)
+	{
+		cur_node = ft_lstlast(dfs_stack);
+		cur_pos = (t_vec2d *)(cur_node->content);
+		ft_lstdel_node(&dfs_stack, cur_node, NULL);
+		if (map_arr[cur_pos->y][cur_pos->x] == 'E')
+			can_exit++;
+		else if (map_arr[cur_pos->y][cur_pos->x] == 'C')
+			remain_c--;
+		// pop back
+		if (cur_pos->x - 1 >= 0 && map_arr[cur_pos->y][cur_pos->x - 1] != '1' && !visit_arr[cur_pos->y][cur_pos->x - 1])
+		{
+			visit_arr[cur_pos->y][cur_pos->x - 1] = 1;
+			new_pos = (t_vec2d *)malloc(sizeof(t_vec2d));
+			new_pos->x = cur_pos->x - 1;
+			new_pos->y = cur_pos->y;
+			new_node = ft_lstnew(new_pos);
+			ft_lstadd_back(&dfs_stack, new_node);
+		}
+		if (cur_pos->x + 1 < game_data.map_width && map_arr[cur_pos->y][cur_pos->x + 1] != '1' && !visit_arr[cur_pos->y][cur_pos->x + 1])
+		{
+			visit_arr[cur_pos->y][cur_pos->x + 1] = 1;
+			new_pos = (t_vec2d *)malloc(sizeof(t_vec2d));
+			new_pos->x = cur_pos->x + 1;
+			new_pos->y = cur_pos->y;
+			new_node = ft_lstnew(new_pos);
+			ft_lstadd_back(&dfs_stack, new_node);
+		}
+		if (cur_pos->y - 1 >= 0 && map_arr[cur_pos->y - 1][cur_pos->x] != '1' && !visit_arr[cur_pos->y - 1][cur_pos->x])
+		{
+			visit_arr[cur_pos->y - 1][cur_pos->x] = 1;
+			new_pos = (t_vec2d *)malloc(sizeof(t_vec2d));
+			new_pos->x = cur_pos->x;
+			new_pos->y = cur_pos->y - 1;
+			new_node = ft_lstnew(new_pos);
+			ft_lstadd_back(&dfs_stack, new_node);
+		}
+		if (cur_pos->y + 1 < game_data.map_height && map_arr[cur_pos->y + 1][cur_pos->x] != '1' && !visit_arr[cur_pos->y + 1][cur_pos->x])
+		{
+			visit_arr[cur_pos->y + 1][cur_pos->x] = 1;
+			new_pos = (t_vec2d *)malloc(sizeof(t_vec2d));
+			new_pos->x = cur_pos->x;
+			new_pos->y = cur_pos->y + 1;
+			new_node = ft_lstnew(new_pos);
+			ft_lstadd_back(&dfs_stack, new_node);
+		}
+		// 4방향체크
+		// visit 마킹후 stack에 추가
+	}
+	// collectible 갯수와 can exit 여부 체크
+	if (remain_c || !can_exit)
+		return (0);
+	return (1);
+}
+
+int is_valid_path(t_game_data game_data)
+{
+	char **visit_arr;
+	int y;
+	t_list *dfs_stack;
+	t_vec2d *player_pos;
+	t_list *new;
+
+	visit_arr = (char **)malloc(sizeof(char *) * game_data.map_height);
+	y = 0;
+	while (y < game_data.map_height)
+		visit_arr[y++] = ft_calloc(game_data.map_width, sizeof(char));
+	dfs_stack = NULL;
+	player_pos = get_player_pos(game_data);
+	new = ft_lstnew(player_pos);
+	if (!new)
+	{
+		free(player_pos);
+		return (0);
+	}
+	ft_lstadd_back(&dfs_stack, new);
+	visit_arr[player_pos->y][player_pos->x] = 1;
+	return (my_dfs(game_data, visit_arr, game_data.map_arr, dfs_stack));
+}
+
+t_list *gnl_to_list(char *map_file_path, int *map_width, int *map_height)
 {
 	int fd;
 	t_list *map_list;
@@ -105,28 +360,119 @@ int gnl_to_list(char *map_file_path, int *map_width, int *map_height)
 		return (0);
 	map_list = NULL;
 	gnl = get_next_line(fd);
-	*map_width = ft_strlen(gnl) - (ft_strchr(gnl, '\n') != 0);
 	while (gnl)
 	{
-		if (!is_valid_characters(gnl, "01CEP"))
-			return (0);
-		if (*map_width != ft_strlen(gnl) - (ft_strchr(gnl, '\n') != 0))
-			return (0);
 		new_node = ft_lstnew(gnl);
 		if (!new_node)
+		{
+			ft_lstclear(&map_list, free);
+			close(fd);
 			return (0);
+		}
 		ft_lstadd_back(&map_list, new_node);
-		*map_height++;
+		(*map_height)++;
 		gnl = get_next_line(fd);
 	}
 	close(fd);
-	return (1);
+	return (map_list);
 }
 // 옮기기만 하고 체크는 다른함수에서 하는게 나은지...?
 
-int list_to_map_arr(t_game_data game_data)
+int list_to_map_arr(t_list *map_list, t_game_data *game_data)
 {
-	game_data.map_arr = (char **)malloc(sizeof(char *) * game_data.map_height);
+	t_list *list_iter;
+	int i;
+
+	i = 0;
+	list_iter = map_list;
+	game_data->map_arr = (char **)malloc(sizeof(char *) * game_data->map_height);
+	if (!game_data->map_arr)
+		return (0);
+	while (list_iter)
+	{
+		game_data->map_arr[i] = list_iter->content;
+		list_iter = list_iter->next;
+		i++;
+	}
+	ft_lstclear(&map_list, NULL);
+	return (1);
+}
+
+int map_arr_check(t_game_data game_data)
+{
+	// int y;
+	// int x;
+
+	// while (y < game_data.map_height)
+	// {
+	// 	x = 0;
+	// 	while (x < game_data.map_width)
+	// 	{
+	// 		if (!is_valid_characters(game_data.map_arr[y][x], "01CEP")) // character check
+	// 		if (ft_strchr("01CEP", ))
+	// 			return (0);
+	// 		x++;
+	// 	}
+	// 	y++;
+	// }
+
+	is_valid_characters(game_data);
+	// character check
+	is_rectangle(game_data);
+	// rectangle check
+	is_wall_closed(game_data);
+	// wall closed check
+	is_valid_objcnt(game_data);
+	game_data.remain_c = get_collectible_cnt(game_data);
+	// object count check
+	is_valid_path(game_data);
+	// DFS check
+	return (1);
+}
+
+int my_key_hook(int keycode, t_game_data *game_data)
+{
+	t_vec2d *cur_pos;
+
+	cur_pos = get_player_pos(*game_data);
+	if (keycode == KEY_W)
+	{
+		if (game_data->map_arr[cur_pos->y - 1][cur_pos->x] != '1')
+		{
+			game_data->map_arr[cur_pos->y][cur_pos->x] = '0';
+			game_data->map_arr[cur_pos->y - 1][cur_pos->x] = 'P';
+		}
+	}
+	else if (keycode == KEY_A)
+	{
+		if (game_data->map_arr[cur_pos->y][cur_pos->x - 1] != '1')
+		{
+			game_data->map_arr[cur_pos->y][cur_pos->x] = '0';
+			game_data->map_arr[cur_pos->y][cur_pos->x - 1] = 'P';
+		}
+	}
+	else if (keycode == KEY_S)
+	{
+		if (game_data->map_arr[cur_pos->y + 1][cur_pos->x] != '1')
+		{
+			game_data->map_arr[cur_pos->y][cur_pos->x] = '0';
+			game_data->map_arr[cur_pos->y + 1][cur_pos->x] = 'P';
+		}
+	}
+	else if (keycode == KEY_D)
+	{
+		if (game_data->map_arr[cur_pos->y][cur_pos->x + 1] != '1')
+		{
+			game_data->map_arr[cur_pos->y][cur_pos->x] = '0';
+			game_data->map_arr[cur_pos->y][cur_pos->x + 1] = 'P';
+		}
+	}
+	else if (keycode == KEY_ESC)
+	{
+		mlx_destroy_window(game_data->mlx_ptr, game_data->win_ptr);
+		return (0);
+	}
+	draw_update(*game_data);
 }
 
 int main(int argc, char *argv[])
@@ -144,246 +490,253 @@ int main(int argc, char *argv[])
 	
 	*/
 
-	if (argc != 2)
-	{
-		ft_printf("argv error\n");
-		return (0);
-	}
+	// if (argc != 2)
+	// {
+	// 	ft_printf("argv error\n");
+	// 	return (0);
+	// }
 
-	if (ft_strlen(argv[1]) < 4 || ft_strncmp(argv[1] + ft_strlen(argv[1]) - 4, ".ber", 4))
-	{
-		ft_printf("file type error\n");
-		return (0);
-	}
+	// if (ft_strlen(argv[1]) < 4 || ft_strncmp(argv[1] + ft_strlen(argv[1]) - 4, ".ber", 4))
+	// {
+	// 	ft_printf("file type error\n");
+	// 	return (0);
+	// }
 
-	// ------------------- gnl 로 읽어와서 리스트에 저장하는 부분
-	int fd;
-	fd = open(argv[1], O_RDONLY); // Mac에서는 루트디렉토리 기준으로 경로를 적어줘야 한다 대체 왜.....
+	// // ------------------- gnl 로 읽어와서 리스트에 저장하는 부분
+	// int fd;
+	// fd = open(argv[1], O_RDONLY); // Mac에서는 루트디렉토리 기준으로 경로를 적어줘야 한다 대체 왜.....
 
-	if (fd < 0)
-	{
-		ft_printf("open error\n");
-		return (0); // fd error
-	}
+	// if (fd < 0)
+	// {
+	// 	ft_printf("open error\n");
+	// 	return (0); // fd error
+	// }
 	
-	size_t map_width = 0;
-	size_t map_height = 0;
-	t_list *map_lst = NULL;
-	char *gnl = get_next_line(fd);
-	map_width = ft_strlen(gnl) - (ft_strchr(gnl, '\n') != 0);
-	while (gnl)
-	{
-		ft_printf("%s", gnl);
-		if (map_width != ft_strlen(gnl) - (ft_strchr(gnl, '\n') != 0))
-		{
-			ft_printf("map not rectangle!\n");
-			return (0); // map not rectangle, windows에서는 LF를 CRLF로 저장하기 때문에 '\n' 을 인식하는데 지장이 있었음...
-		}
-		t_list *new;
-		new = ft_lstnew(gnl);
-		if (!new)
-			return (0);
-		ft_lstadd_back(&map_lst, new);
-		map_height++;
-		// free(gnl);
-		gnl = get_next_line(fd);
-	}
-	close(fd);
-	if (map_width == 0 || map_height == 0)
-		return (0); // map not rectangle
+	// size_t map_width = 0;
+	// size_t map_height = 0;
+	// t_list *map_lst = NULL;
+	// char *gnl = get_next_line(fd);
+	// map_width = ft_strlen(gnl) - (ft_strchr(gnl, '\n') != 0);
+	// while (gnl)
+	// {
+	// 	ft_printf("%s", gnl);
+	// 	if (map_width != ft_strlen(gnl) - (ft_strchr(gnl, '\n') != 0))
+	// 	{
+	// 		ft_printf("map not rectangle!\n");
+	// 		return (0); // map not rectangle, windows에서는 LF를 CRLF로 저장하기 때문에 '\n' 을 인식하는데 지장이 있었음...
+	// 	}
+	// 	t_list *new;
+	// 	new = ft_lstnew(gnl);
+	// 	if (!new)
+	// 		return (0);
+	// 	ft_lstadd_back(&map_lst, new);
+	// 	map_height++;
+	// 	// free(gnl);
+	// 	gnl = get_next_line(fd);
+	// }
+	// close(fd);
+	// if (map_width == 0 || map_height == 0)
+	// 	return (0); // map not rectangle
 	
-	// 벽으로 닫혀있는지
-	// 오브젝트들의 갯수가 유효한지: 1개의 플레이어 1개의 출구 최소 1개의 수집물
-	// 경로가 유효한지
-	// 마음같아선 이중배열을 쓰고싶은데 gnl을 사용하기엔 linked list가 더 좋을까...
-	// 단지 map_height를 위해서 매번 읽기만 하고 사용하지 않는것은 낭비같기도 하고...
-	//
-	// linked list에 담아놓고 map_height 만큼 이중배열을 선언해서
-	// 순회하면서 content만 넣어주고 list는 del 없이 clear 하기?
+	// // 벽으로 닫혀있는지
+	// // 오브젝트들의 갯수가 유효한지: 1개의 플레이어 1개의 출구 최소 1개의 수집물
+	// // 경로가 유효한지
+	// // 마음같아선 이중배열을 쓰고싶은데 gnl을 사용하기엔 linked list가 더 좋을까...
+	// // 단지 map_height를 위해서 매번 읽기만 하고 사용하지 않는것은 낭비같기도 하고...
+	// //
+	// // linked list에 담아놓고 map_height 만큼 이중배열을 선언해서
+	// // 순회하면서 content만 넣어주고 list는 del 없이 clear 하기?
 
-	// -------------- 이중배열로 만들기 위해 리스트를 순회하며 문자열 주소 옮겨주는 부분
-	t_list *map_lst_iter = map_lst;
-	char **map_arr;
-	map_arr = (char **)malloc(sizeof(char *) * map_height);
-	for (int i = 0; i < map_height; i++)
-	{
-		map_arr[i] = map_lst_iter->content;
-		map_lst_iter = map_lst_iter->next;
-	}
+	// // -------------- 이중배열로 만들기 위해 리스트를 순회하며 문자열 주소 옮겨주는 부분
+	// t_list *map_lst_iter = map_lst;
+	// char **map_arr;
+	// map_arr = (char **)malloc(sizeof(char *) * map_height);
+	// for (int i = 0; i < map_height; i++)
+	// {
+	// 	map_arr[i] = map_lst_iter->content;
+	// 	map_lst_iter = map_lst_iter->next;
+	// }
 
-	ft_printf("\n\n");
-	for (int j = 0; j < map_height; j++)
-	{
-		for (int i = 0; i < map_width; i++)
-		{
-			ft_printf("%c", map_arr[j][i]);
-		}
-		ft_printf("\n");
-	}
+	// ft_printf("\n\n");
+	// for (int j = 0; j < map_height; j++)
+	// {
+	// 	for (int i = 0; i < map_width; i++)
+	// 	{
+	// 		ft_printf("%c", map_arr[j][i]);
+	// 	}
+	// 	ft_printf("\n");
+	// }
 
-	// -------------- 맵 파일의 문자, 벽, 오브젝트갯수 체크 부분
-	size_t p_cnt = 0;
-	size_t e_cnt = 0;
-	size_t c_cnt = 0;
-	ft_printf("\n\n");
-	for (int j = 0; j < map_height; j++)
-	{
-		for (int i = 0; i < map_width; i++)
-		{
-			ft_printf("%c", map_arr[j][i]);
-			if ((j == 0 || j == map_height - 1) || (i == 0 || i == map_width - 1))
-			{
-				if (map_arr[j][i] != '1')
-				{
-					ft_printf("map (%d, %d) is not closed!\n", i, j);
-					return (0);
-				}
-			}
-			//map_arr[j][i];
-			if (map_arr[j][i] == 'P')
-				p_cnt++;
-			else if (map_arr[j][i] == 'E')
-				e_cnt++;
-			else if (map_arr[j][i] == 'C')
-				c_cnt++;
-			else if (map_arr[j][i] != '1' && map_arr[j][i] != '0')
-			{
-				ft_printf("(%d, %d) there wrong char in mapfile!\n", i, j);
-				return (0);
-			}
-		}
-		ft_printf("\n");
-	}
-	if (p_cnt == 0 || p_cnt > 1 || e_cnt == 0 || e_cnt > 1 || c_cnt == 0)
-	{
-		ft_printf("object count wrong!\n");
-		return (0);
-	}
-	ft_printf("player cnt: %d\n", p_cnt);
-	ft_printf("exit cnt: %d\n", e_cnt);
-	ft_printf("collectible cnt: %d\n", c_cnt);
+	// // -------------- 맵 파일의 문자, 벽, 오브젝트갯수 체크 부분
+	// size_t p_cnt = 0;
+	// size_t e_cnt = 0;
+	// size_t c_cnt = 0;
+	// ft_printf("\n\n");
+	// for (int j = 0; j < map_height; j++)
+	// {
+	// 	for (int i = 0; i < map_width; i++)
+	// 	{
+	// 		ft_printf("%c", map_arr[j][i]);
+	// 		if ((j == 0 || j == map_height - 1) || (i == 0 || i == map_width - 1))
+	// 		{
+	// 			if (map_arr[j][i] != '1')
+	// 			{
+	// 				ft_printf("map (%d, %d) is not closed!\n", i, j);
+	// 				return (0);
+	// 			}
+	// 		}
+	// 		//map_arr[j][i];
+	// 		if (map_arr[j][i] == 'P')
+	// 			p_cnt++;
+	// 		else if (map_arr[j][i] == 'E')
+	// 			e_cnt++;
+	// 		else if (map_arr[j][i] == 'C')
+	// 			c_cnt++;
+	// 		else if (map_arr[j][i] != '1' && map_arr[j][i] != '0')
+	// 		{
+	// 			ft_printf("(%d, %d) there wrong char in mapfile!\n", i, j);
+	// 			return (0);
+	// 		}
+	// 	}
+	// 	ft_printf("\n");
+	// }
+	// if (p_cnt == 0 || p_cnt > 1 || e_cnt == 0 || e_cnt > 1 || c_cnt == 0)
+	// {
+	// 	ft_printf("object count wrong!\n");
+	// 	return (0);
+	// }
+	// ft_printf("player cnt: %d\n", p_cnt);
+	// ft_printf("exit cnt: %d\n", e_cnt);
+	// ft_printf("collectible cnt: %d\n", c_cnt);
 
-	// dfs
-	// x, y 를 함께 갖는 구조체가 필요함
-	//
-	// 해당 구조체로 stack을 만들고
-	// stack의 last를 하나씩 뽑아오는것 (prev 연결은...? -> 만들어뒀던 delnode로...?)
-	//
-	// 해당 좌표로 visit 배열을 체크
-	// 방문하지 않았다면 마킹하고 stack에 추가
-	// 이동할수없는 구역이거나 이미 방문했다면 그대로 pass
-	//
-	// 매 루프마다 남아있는 collectible 개수를 체크해서 반복문을 끝낼것인지...?
-	// 모든 루프를 끝마치고 마지막에 체크했던 오브젝트 갯수들을 한번에 볼것인지...?
-	// collectible을 다 먹어도 exit를 마지막에 만날수있으니 후자가 낫나?
+	// // dfs
+	// // x, y 를 함께 갖는 구조체가 필요함
+	// //
+	// // 해당 구조체로 stack을 만들고
+	// // stack의 last를 하나씩 뽑아오는것 (prev 연결은...? -> 만들어뒀던 delnode로...?)
+	// //
+	// // 해당 좌표로 visit 배열을 체크
+	// // 방문하지 않았다면 마킹하고 stack에 추가
+	// // 이동할수없는 구역이거나 이미 방문했다면 그대로 pass
+	// //
+	// // 매 루프마다 남아있는 collectible 개수를 체크해서 반복문을 끝낼것인지...?
+	// // 모든 루프를 끝마치고 마지막에 체크했던 오브젝트 갯수들을 한번에 볼것인지...?
+	// // collectible을 다 먹어도 exit를 마지막에 만날수있으니 후자가 낫나?
 
-	// ------------- DFS로 유효한 경로가 있는지 체크하는 부분
-	char **visit_arr;
-	visit_arr = (char **)malloc(sizeof(char *) * map_height);
-	for (int i = 0; i < map_height; i++)
-		visit_arr[i] = ft_calloc(map_width, sizeof(char));
-	t_list *dfs_stack = NULL;
-	for (int j = 0; j < map_height; j++)
-	{
-		for (int i = 0; i < map_width; i++)
-		{
-			if (map_arr[j][i] == 'P')
-			{
-				t_vec2d *new_vec2 = (t_vec2d *)malloc(sizeof(t_vec2d));
-				new_vec2->x = i;
-				new_vec2->y = j;
-				t_list *new;
-				new = ft_lstnew(new_vec2);
-				ft_lstadd_back(&dfs_stack, new);
-				visit_arr[j][i] = 1;
-				break ;
-			}
-		}
-		if (dfs_stack)
-			break ;
-	}
+	// // ------------- DFS로 유효한 경로가 있는지 체크하는 부분
+	// char **visit_arr;
+	// visit_arr = (char **)malloc(sizeof(char *) * map_height);
+	// for (int i = 0; i < map_height; i++)
+	// 	visit_arr[i] = ft_calloc(map_width, sizeof(char));
+	// t_list *dfs_stack = NULL;
+	// for (int j = 0; j < map_height; j++)
+	// {
+	// 	for (int i = 0; i < map_width; i++)
+	// 	{
+	// 		if (map_arr[j][i] == 'P')
+	// 		{
+	// 			t_vec2d *new_vec2 = (t_vec2d *)malloc(sizeof(t_vec2d));
+	// 			new_vec2->x = i;
+	// 			new_vec2->y = j;
+	// 			t_list *new;
+	// 			new = ft_lstnew(new_vec2);
+	// 			ft_lstadd_back(&dfs_stack, new);
+	// 			visit_arr[j][i] = 1;
+	// 			break ;
+	// 		}
+	// 	}
+	// 	if (dfs_stack)
+	// 		break ;
+	// }
 
-	size_t can_exit = 0;
-	size_t remain_c = c_cnt;
-	while (dfs_stack)
-	{
-		t_list *cur_node;
-		t_vec2d cur_pos;
-		cur_node = ft_lstlast(dfs_stack);
-		cur_pos.x = ((t_vec2d *)(cur_node->content))->x;
-		cur_pos.y = ((t_vec2d *)(cur_node->content))->y;
-		ft_lstdel_node(&dfs_stack, cur_node, free);
+	// size_t can_exit = 0;
+	// size_t remain_c = c_cnt;
+	// while (dfs_stack)
+	// {
+	// 	t_list *cur_node;
+	// 	t_vec2d cur_pos;
+	// 	cur_node = ft_lstlast(dfs_stack);
+	// 	cur_pos.x = ((t_vec2d *)(cur_node->content))->x;
+	// 	cur_pos.y = ((t_vec2d *)(cur_node->content))->y;
+	// 	ft_lstdel_node(&dfs_stack, cur_node, free);
 
-		if (map_arr[cur_pos.y][cur_pos.x] == 'E')
-			can_exit++;
-		else if (map_arr[cur_pos.y][cur_pos.x] == 'C')
-			remain_c--;
+	// 	if (map_arr[cur_pos.y][cur_pos.x] == 'E')
+	// 		can_exit++;
+	// 	else if (map_arr[cur_pos.y][cur_pos.x] == 'C')
+	// 		remain_c--;
 
-		if (cur_pos.x - 1 >= 0 && visit_arr[cur_pos.y][cur_pos.x - 1] == 0 && map_arr[cur_pos.y][cur_pos.x - 1] != '1')
-		{
-			t_vec2d *new_vec2 = (t_vec2d *)malloc(sizeof(t_vec2d));
-			new_vec2->x = cur_pos.x - 1;
-			new_vec2->y = cur_pos.y;
-			t_list *new;
-			new = ft_lstnew(new_vec2);
-			ft_lstadd_back(&dfs_stack, new);
-			visit_arr[cur_pos.y][cur_pos.x - 1] = 1;
-		}
-		if (cur_pos.x + 1 < map_width && visit_arr[cur_pos.y][cur_pos.x + 1] == 0 && map_arr[cur_pos.y][cur_pos.x + 1] != '1')
-		{
-			t_vec2d *new_vec2 = (t_vec2d *)malloc(sizeof(t_vec2d));
-			new_vec2->x = cur_pos.x + 1;
-			new_vec2->y = cur_pos.y;
-			t_list *new;
-			new = ft_lstnew(new_vec2);
-			ft_lstadd_back(&dfs_stack, new);
-			visit_arr[cur_pos.y][cur_pos.x + 1] = 1;
-		}
+	// 	if (cur_pos.x - 1 >= 0 && visit_arr[cur_pos.y][cur_pos.x - 1] == 0 && map_arr[cur_pos.y][cur_pos.x - 1] != '1')
+	// 	{
+	// 		t_vec2d *new_vec2 = (t_vec2d *)malloc(sizeof(t_vec2d));
+	// 		new_vec2->x = cur_pos.x - 1;
+	// 		new_vec2->y = cur_pos.y;
+	// 		t_list *new;
+	// 		new = ft_lstnew(new_vec2);
+	// 		ft_lstadd_back(&dfs_stack, new);
+	// 		visit_arr[cur_pos.y][cur_pos.x - 1] = 1;
+	// 	}
+	// 	if (cur_pos.x + 1 < map_width && visit_arr[cur_pos.y][cur_pos.x + 1] == 0 && map_arr[cur_pos.y][cur_pos.x + 1] != '1')
+	// 	{
+	// 		t_vec2d *new_vec2 = (t_vec2d *)malloc(sizeof(t_vec2d));
+	// 		new_vec2->x = cur_pos.x + 1;
+	// 		new_vec2->y = cur_pos.y;
+	// 		t_list *new;
+	// 		new = ft_lstnew(new_vec2);
+	// 		ft_lstadd_back(&dfs_stack, new);
+	// 		visit_arr[cur_pos.y][cur_pos.x + 1] = 1;
+	// 	}
 
-		if (cur_pos.y - 1 >= 0 && visit_arr[cur_pos.y - 1][cur_pos.x] == 0 && map_arr[cur_pos.y - 1][cur_pos.x] != '1')
-		{
-			t_vec2d *new_vec2 = (t_vec2d *)malloc(sizeof(t_vec2d));
-			new_vec2->x = cur_pos.x;
-			new_vec2->y = cur_pos.y - 1;
-			t_list *new;
-			new = ft_lstnew(new_vec2);
-			ft_lstadd_back(&dfs_stack, new);
-			visit_arr[cur_pos.y - 1][cur_pos.x] = 1;
-		}
-		if (cur_pos.y + 1 < map_height && visit_arr[cur_pos.y + 1][cur_pos.x] == 0 && map_arr[cur_pos.y + 1][cur_pos.x] != '1')
-		{
-			t_vec2d *new_vec2 = (t_vec2d *)malloc(sizeof(t_vec2d));
-			new_vec2->x = cur_pos.x;
-			new_vec2->y = cur_pos.y + 1;
-			t_list *new;
-			new = ft_lstnew(new_vec2);
-			ft_lstadd_back(&dfs_stack, new);
-			visit_arr[cur_pos.y + 1][cur_pos.x] = 1;
-		}
-	}
+	// 	if (cur_pos.y - 1 >= 0 && visit_arr[cur_pos.y - 1][cur_pos.x] == 0 && map_arr[cur_pos.y - 1][cur_pos.x] != '1')
+	// 	{
+	// 		t_vec2d *new_vec2 = (t_vec2d *)malloc(sizeof(t_vec2d));
+	// 		new_vec2->x = cur_pos.x;
+	// 		new_vec2->y = cur_pos.y - 1;
+	// 		t_list *new;
+	// 		new = ft_lstnew(new_vec2);
+	// 		ft_lstadd_back(&dfs_stack, new);
+	// 		visit_arr[cur_pos.y - 1][cur_pos.x] = 1;
+	// 	}
+	// 	if (cur_pos.y + 1 < map_height && visit_arr[cur_pos.y + 1][cur_pos.x] == 0 && map_arr[cur_pos.y + 1][cur_pos.x] != '1')
+	// 	{
+	// 		t_vec2d *new_vec2 = (t_vec2d *)malloc(sizeof(t_vec2d));
+	// 		new_vec2->x = cur_pos.x;
+	// 		new_vec2->y = cur_pos.y + 1;
+	// 		t_list *new;
+	// 		new = ft_lstnew(new_vec2);
+	// 		ft_lstadd_back(&dfs_stack, new);
+	// 		visit_arr[cur_pos.y + 1][cur_pos.x] = 1;
+	// 	}
+	// }
 
-	ft_printf("\n");
-	if (can_exit == 0 || remain_c > 0)
-	{
-		ft_printf("invalid path!\n");
-		if (remain_c)
-			ft_printf("there remain collectible!\n");
-		if (!can_exit)
-			ft_printf("Can access to exit!\n");
-		return (0);
-	}
+	// ft_printf("\n");
+	// if (can_exit == 0 || remain_c > 0)
+	// {
+	// 	ft_printf("invalid path!\n");
+	// 	if (remain_c)
+	// 		ft_printf("there remain collectible!\n");
+	// 	if (!can_exit)
+	// 		ft_printf("Can access to exit!\n");
+	// 	return (0);
+	// }
 
-	ft_printf("valid check done\n");
+	// ft_printf("valid check done\n");
 	
 	// ------------- mlx 세팅
 	t_game_data game_data;
+	t_list *map_list;
 
-	ft_bzero(game_data, sizeof(t_game_data));
-	// 이 타이밍에서 구조체 들고 파싱함수로 들어가야 map_width, map_height, map_arr에 넣어줄수있음
+	if (argc != 2)
+		return (0);
+	ft_bzero(&game_data, sizeof(t_game_data));
+	map_list = gnl_to_list(argv[1], &game_data.map_width, &game_data.map_height);
+	if (!map_list)
+		return (0);
+	if (!list_to_map_arr(map_list, &game_data))
+		return (0);
+	game_data.map_width = ft_strlen(game_data.map_arr[0]) - (ft_strchr(game_data.map_arr[0], '\n') > 0);
+	if (!map_arr_check(game_data))
+		return (0);
 	game_data.mlx_ptr = mlx_init();
-	game_data.map_width = map_width;
-	game_data.map_height = map_height;
-	game_data.map_arr = map_arr;
 	game_data.win_ptr = mlx_new_window(game_data.mlx_ptr, game_data.map_width * 32, game_data.map_height * 32, "so_long");
 	
 	// void *mlx_ptr;
@@ -405,6 +758,6 @@ int main(int argc, char *argv[])
 
 	// mlx_key_hook(win_ptr); // -> 결국 void *param에 넣을 구조체가 필요하다...
 	// 공통적으로 쓰일애들 파악하기 ex) mlx_ptr, win_ptr, map_arr(width, height), img_stat(void *img_ptr, char *img_path, int img_width, int img_height), game_resources
-
+	mlx_key_hook(game_data.win_ptr, my_key_hook, &game_data);
 	mlx_loop(game_data.mlx_ptr);
 }

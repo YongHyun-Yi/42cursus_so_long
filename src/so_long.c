@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 11:34:40 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/15 12:28:06 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/15 12:59:10 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,13 +52,37 @@ int load_game_res(void *mlx_ptr, t_game_res *game_res)
 	return (1);
 }
 
-t_vec2d *get_player_pos(t_game_data game_data)
+// t_vec2d *get_player_pos(t_game_data game_data)
+// {
+// 	int y;
+// 	int x;
+// 	t_vec2d *pos;
+
+// 	pos = (t_vec2d *)malloc(sizeof(t_vec2d));
+// 	y = 0;
+// 	while (y < game_data.map_height)
+// 	{
+// 		x = 0;
+// 		while (x < game_data.map_width)
+// 		{
+// 			if (game_data.map_arr[y][x] == 'P')
+// 			{
+// 				pos->x = x;
+// 				pos->y = y;
+// 				return (pos);
+// 			}
+// 			x++;
+// 		}
+// 		y++;
+// 	}
+// }
+
+t_vec2d get_player_pos(t_game_data game_data)
 {
 	int y;
 	int x;
-	t_vec2d *pos;
+	t_vec2d pos;
 
-	pos = (t_vec2d *)malloc(sizeof(t_vec2d));
 	y = 0;
 	while (y < game_data.map_height)
 	{
@@ -67,8 +91,8 @@ t_vec2d *get_player_pos(t_game_data game_data)
 		{
 			if (game_data.map_arr[y][x] == 'P')
 			{
-				pos->x = x;
-				pos->y = y;
+				pos.x = x;
+				pos.y = y;
 				return (pos);
 			}
 			x++;
@@ -102,8 +126,8 @@ void draw_horizontal(t_game_data game_data, int y)
 			draw_image(game_data.mlx_ptr, game_data.win_ptr, game_data.game_res.spr_collectible, cur_pos);
 		else if (map_hor_arr[x] == 'E')
 			draw_image(game_data.mlx_ptr, game_data.win_ptr, game_data.game_res.spr_exit, cur_pos);
-		else if (map_hor_arr[x] == 'P')
-			draw_image(game_data.mlx_ptr, game_data.win_ptr, game_data.game_res.spr_player1, cur_pos);
+		// else if (map_hor_arr[x] == 'P')
+		// 	draw_image(game_data.mlx_ptr, game_data.win_ptr, game_data.game_res.spr_player1, cur_pos);
 		x++;
 	}
 }
@@ -117,6 +141,7 @@ void draw_update(t_game_data game_data)
 		draw_horizontal(game_data, y);
 		y++;
 	}
+	draw_image(game_data.mlx_ptr, game_data.win_ptr, game_data.game_res.spr_player1, game_data.player_pos);
 }
 
 int is_valid_characters(t_game_data game_data)
@@ -279,10 +304,23 @@ int dfs_check(t_game_data game_data, char **visit_arr, int x, int y)
 {
 	if (x >= 0 && x < game_data.map_width && y >= 0 && y < game_data.map_height)
 	{
-		if ((game_data.map_arr[y][x] != '1' || game_data.map_arr[y][x] != 'E') && !visit_arr[y][x])
+		if (game_data.map_arr[y][x] != '1' && !visit_arr[y][x])
 			return (1);
 	}
 	return (0);
+}
+
+int dfs_check_4dir(t_game_data game_data, char **visit_arr, t_list **dfs_stack, t_vec2d *cur_pos)
+{
+	if (dfs_check(game_data, visit_arr, cur_pos->x - 1, cur_pos->y))
+		dfs_add(dfs_stack, visit_arr, cur_pos->x - 1, cur_pos->y);
+		// 해당 좌표로 추가하고 visit_arr 업데이트
+	if (dfs_check(game_data, visit_arr, cur_pos->x + 1, cur_pos->y))
+		dfs_add(dfs_stack, visit_arr, cur_pos->x + 1, cur_pos->y);
+	if (dfs_check(game_data, visit_arr, cur_pos->x, cur_pos->y - 1))
+		dfs_add(dfs_stack, visit_arr, cur_pos->x, cur_pos->y - 1);
+	if (dfs_check(game_data, visit_arr, cur_pos->x, cur_pos->y + 1))
+		dfs_add(dfs_stack, visit_arr, cur_pos->x, cur_pos->y + 1);
 }
 
 // dfs_loop
@@ -291,79 +329,40 @@ int my_dfs(t_game_data game_data, char **visit_arr, char **map_arr, t_list **dfs
 {
 	t_list *cur_node;
 	t_vec2d *cur_pos;
-	t_list *new_node;
-	t_vec2d *new_pos;
 	size_t can_exit;
 	size_t remain_c;
 
 	can_exit = 0;
 	remain_c = game_data.remain_c;
+	ft_printf("c: %d\n", remain_c);
+	ft_printf("e: %d\n", can_exit);
 	while (*dfs_stack)
 	{
 		cur_node = ft_lstlast(*dfs_stack);
 		cur_pos = (t_vec2d *)(cur_node->content);
-		ft_lstdel_node(dfs_stack, cur_node, NULL);
 		if (map_arr[cur_pos->y][cur_pos->x] == 'E')
 			can_exit++;
 		else if (map_arr[cur_pos->y][cur_pos->x] == 'C')
 			remain_c--;
-		// pop back
-		// if (cur_pos->x - 1 >= 0 && map_arr[cur_pos->y][cur_pos->x - 1] != '1' && !visit_arr[cur_pos->y][cur_pos->x - 1])
-		// {
-		// 	visit_arr[cur_pos->y][cur_pos->x - 1] = 1;
-		// 	new_pos = (t_vec2d *)malloc(sizeof(t_vec2d));
-		// 	new_pos->x = cur_pos->x - 1;
-		// 	new_pos->y = cur_pos->y;
-		// 	new_node = ft_lstnew(new_pos);
-		// 	ft_lstadd_back(&dfs_stack, new_node);
-		// }
-		// if (cur_pos->x + 1 < game_data.map_width && map_arr[cur_pos->y][cur_pos->x + 1] != '1' && !visit_arr[cur_pos->y][cur_pos->x + 1])
-		// {
-		// 	visit_arr[cur_pos->y][cur_pos->x + 1] = 1;
-		// 	new_pos = (t_vec2d *)malloc(sizeof(t_vec2d));
-		// 	new_pos->x = cur_pos->x + 1;
-		// 	new_pos->y = cur_pos->y;
-		// 	new_node = ft_lstnew(new_pos);
-		// 	ft_lstadd_back(&dfs_stack, new_node);
-		// }
-		// if (cur_pos->y - 1 >= 0 && map_arr[cur_pos->y - 1][cur_pos->x] != '1' && !visit_arr[cur_pos->y - 1][cur_pos->x])
-		// {
-		// 	visit_arr[cur_pos->y - 1][cur_pos->x] = 1;
-		// 	new_pos = (t_vec2d *)malloc(sizeof(t_vec2d));
-		// 	new_pos->x = cur_pos->x;
-		// 	new_pos->y = cur_pos->y - 1;
-		// 	new_node = ft_lstnew(new_pos);
-		// 	ft_lstadd_back(&dfs_stack, new_node);
-		// }
-		// if (cur_pos->y + 1 < game_data.map_height && map_arr[cur_pos->y + 1][cur_pos->x] != '1' && !visit_arr[cur_pos->y + 1][cur_pos->x])
-		// {
-		// 	visit_arr[cur_pos->y + 1][cur_pos->x] = 1;
-		// 	new_pos = (t_vec2d *)malloc(sizeof(t_vec2d));
-		// 	new_pos->x = cur_pos->x;
-		// 	new_pos->y = cur_pos->y + 1;
-		// 	new_node = ft_lstnew(new_pos);
-		// 	ft_lstadd_back(&dfs_stack, new_node);
-		// }
-		// // 4방향체크
-		// // visit 마킹후 stack에 추가
-
 		// check 4 direction
-		if (dfs_check(game_data, visit_arr, cur_pos->x - 1, cur_pos->y))
-			dfs_add(dfs_stack, visit_arr, cur_pos->x - 1, cur_pos->y);
-			// 해당 좌표로 추가하고 visit_arr 업데이트
-		if (dfs_check(game_data, visit_arr, cur_pos->x + 1, cur_pos->y))
-			dfs_add(dfs_stack, visit_arr, cur_pos->x + 1, cur_pos->y);
-		if (dfs_check(game_data, visit_arr, cur_pos->x, cur_pos->y - 1))
-			dfs_add(dfs_stack, visit_arr, cur_pos->x, cur_pos->y - 1);
-		if (dfs_check(game_data, visit_arr, cur_pos->x, cur_pos->y + 1))
-			dfs_add(dfs_stack, visit_arr, cur_pos->x, cur_pos->y + 1);
+		// if (dfs_check(game_data, visit_arr, cur_pos->x - 1, cur_pos->y))
+		// 	dfs_add(dfs_stack, visit_arr, cur_pos->x - 1, cur_pos->y);
+		// 	// 해당 좌표로 추가하고 visit_arr 업데이트
+		// if (dfs_check(game_data, visit_arr, cur_pos->x + 1, cur_pos->y))
+		// 	dfs_add(dfs_stack, visit_arr, cur_pos->x + 1, cur_pos->y);
+		// if (dfs_check(game_data, visit_arr, cur_pos->x, cur_pos->y - 1))
+		// 	dfs_add(dfs_stack, visit_arr, cur_pos->x, cur_pos->y - 1);
+		// if (dfs_check(game_data, visit_arr, cur_pos->x, cur_pos->y + 1))
+		// 	dfs_add(dfs_stack, visit_arr, cur_pos->x, cur_pos->y + 1);
+		dfs_check_4dir(game_data, visit_arr, dfs_stack, cur_node->content);
+		ft_lstdel_node(dfs_stack, cur_node, free);
 	}
 	// collectible 갯수와 can exit 여부 체크
+	ft_printf("c: %d\n", remain_c);
+	ft_printf("e: %d\n", can_exit);
 	if (remain_c || !can_exit)
 		return (0);
 	return (1);
-
-	
 }
 
 int is_valid_path(t_game_data game_data)
@@ -371,7 +370,7 @@ int is_valid_path(t_game_data game_data)
 	char **visit_arr;
 	int y;
 	t_list *dfs_stack;
-	t_vec2d *player_pos;
+	// t_vec2d *player_pos;
 	t_list *new;
 
 	visit_arr = (char **)malloc(sizeof(char *) * game_data.map_height);
@@ -379,15 +378,16 @@ int is_valid_path(t_game_data game_data)
 	while (y < game_data.map_height)
 		visit_arr[y++] = ft_calloc(game_data.map_width, sizeof(char));
 	dfs_stack = NULL;
-	player_pos = get_player_pos(game_data);
-	new = ft_lstnew(player_pos);
-	if (!new)
-	{
-		free(player_pos);
-		return (0);
-	}
-	ft_lstadd_back(&dfs_stack, new);
-	visit_arr[player_pos->y][player_pos->x] = 1;
+	// player_pos = get_player_pos(game_data);
+	dfs_add(&dfs_stack, visit_arr, game_data.player_pos.x, game_data.player_pos.y);
+	// new = ft_lstnew(player_pos);
+	// if (!new)
+	// {
+	// 	free(player_pos);
+	// 	return (0);
+	// }
+	// ft_lstadd_back(&dfs_stack, new);
+	// visit_arr[player_pos->y][player_pos->x] = 1;
 	return (my_dfs(game_data, visit_arr, game_data.map_arr, &dfs_stack));
 }
 
@@ -450,6 +450,8 @@ int map_arr_check(t_game_data *game_data)
 	
 	is_valid_objcnt(*game_data); // object count check
 	game_data->remain_c = get_collectible_cnt(*game_data);
+	game_data->player_pos = get_player_pos(*game_data);
+	game_data->map_arr[game_data->player_pos.y][game_data->player_pos.x] = '0';
 
 	ft_printf("DFS: %d\n",is_valid_path(*game_data)); // DFS check
 	
@@ -458,40 +460,70 @@ int map_arr_check(t_game_data *game_data)
 
 int my_key_hook(int keycode, t_game_data *game_data)
 {
-	t_vec2d *cur_pos;
+	// t_vec2d *cur_pos;
 
-	cur_pos = get_player_pos(*game_data);
+	// cur_pos = get_player_pos(*game_data);
+	// if (keycode == KEY_W)
+	// {
+	// 	if (game_data->map_arr[cur_pos->y - 1][cur_pos->x] != '1')
+	// 	{
+	// 		game_data->map_arr[cur_pos->y][cur_pos->x] = '0';
+	// 		game_data->map_arr[cur_pos->y - 1][cur_pos->x] = 'P';
+	// 	}
+	// }
+	// else if (keycode == KEY_A)
+	// {
+	// 	if (game_data->map_arr[cur_pos->y][cur_pos->x - 1] != '1')
+	// 	{
+	// 		game_data->map_arr[cur_pos->y][cur_pos->x] = '0';
+	// 		game_data->map_arr[cur_pos->y][cur_pos->x - 1] = 'P';
+	// 	}
+	// }
+	// else if (keycode == KEY_S)
+	// {
+	// 	if (game_data->map_arr[cur_pos->y + 1][cur_pos->x] != '1')
+	// 	{
+	// 		game_data->map_arr[cur_pos->y][cur_pos->x] = '0';
+	// 		game_data->map_arr[cur_pos->y + 1][cur_pos->x] = 'P';
+	// 	}
+	// }
+	// else if (keycode == KEY_D)
+	// {
+	// 	if (game_data->map_arr[cur_pos->y][cur_pos->x + 1] != '1')
+	// 	{
+	// 		game_data->map_arr[cur_pos->y][cur_pos->x] = '0';
+	// 		game_data->map_arr[cur_pos->y][cur_pos->x + 1] = 'P';
+	// 	}
+	// }
+	// else if (keycode == KEY_ESC)
+	// {
+	// 	mlx_destroy_window(game_data->mlx_ptr, game_data->win_ptr);
+	// 	return (0);
+	// }
+	// draw_update(*game_data);
+	t_vec2d cur_pos;
+	cur_pos = game_data->player_pos;
 	if (keycode == KEY_W)
-	{
-		if (game_data->map_arr[cur_pos->y - 1][cur_pos->x] != '1')
-		{
-			game_data->map_arr[cur_pos->y][cur_pos->x] = '0';
-			game_data->map_arr[cur_pos->y - 1][cur_pos->x] = 'P';
-		}
-	}
+		cur_pos.y -= 1;
 	else if (keycode == KEY_A)
-	{
-		if (game_data->map_arr[cur_pos->y][cur_pos->x - 1] != '1')
-		{
-			game_data->map_arr[cur_pos->y][cur_pos->x] = '0';
-			game_data->map_arr[cur_pos->y][cur_pos->x - 1] = 'P';
-		}
-	}
+		cur_pos.x -= 1;
 	else if (keycode == KEY_S)
-	{
-		if (game_data->map_arr[cur_pos->y + 1][cur_pos->x] != '1')
-		{
-			game_data->map_arr[cur_pos->y][cur_pos->x] = '0';
-			game_data->map_arr[cur_pos->y + 1][cur_pos->x] = 'P';
-		}
-	}
+		cur_pos.y += 1;
 	else if (keycode == KEY_D)
+		cur_pos.x += 1;
+	if (game_data->map_arr[cur_pos.y][cur_pos.x] != '1')
 	{
-		if (game_data->map_arr[cur_pos->y][cur_pos->x + 1] != '1')
+		if (game_data->map_arr[cur_pos.y][cur_pos.x] == 'C')
 		{
-			game_data->map_arr[cur_pos->y][cur_pos->x] = '0';
-			game_data->map_arr[cur_pos->y][cur_pos->x + 1] = 'P';
+			game_data->map_arr[cur_pos.y][cur_pos.x] = '0';
+			game_data->remain_c--;
 		}
+		else if (game_data->map_arr[cur_pos.y][cur_pos.x] == 'E' && !game_data->remain_c)
+		{
+			mlx_destroy_window(game_data->mlx_ptr, game_data->win_ptr);
+			return (0);
+		}
+		game_data->player_pos = cur_pos;
 	}
 	else if (keycode == KEY_ESC)
 	{
@@ -522,7 +554,7 @@ int main(int argc, char *argv[])
 	
 	if (!load_game_res(game_data.mlx_ptr, &game_data.game_res))
 		return (0);
-
+	
 	draw_update(game_data);
 
 	mlx_key_hook(game_data.win_ptr, my_key_hook, &game_data);

@@ -43,6 +43,7 @@ typedef struct s_game_data
 	int map_height;
 	char **map_arr;
 	int remain_c;
+	int move_cnt;
 	t_vec2d player_pos;
 	t_game_res game_res;
 }	t_game_data;

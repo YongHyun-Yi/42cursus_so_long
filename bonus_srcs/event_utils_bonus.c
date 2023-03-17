@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:43:36 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 15:05:48 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/17 20:46:31 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,6 @@ void	move_event(int keycode, t_game_data *game_data)
 			my_solong_exit(game_data);
 		game_data->player_pos.x = cur_pos.x;
 		game_data->player_pos.y = cur_pos.y;
-		ft_printf("Move Count: %d\n", ++(game_data->move_cnt));
+		game_data->move_cnt++;
 	}
 }

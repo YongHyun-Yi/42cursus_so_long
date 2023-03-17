@@ -6,7 +6,7 @@
 #    By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/17 09:38:06 by yonghyle          #+#    #+#              #
-#    Updated: 2023/03/17 19:22:47 by yonghyle         ###   ########.fr        #
+#    Updated: 2023/03/17 19:57:37 by yonghyle         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,6 +39,8 @@ LIBFT_A = libft/libft.a
 
 NAME = so_long
 
+BONUS_NAME = make_bonus
+
 #-------------------------------------------
 
 UNAME := $(shell uname)
@@ -68,7 +70,7 @@ MANDATORY_OBJS = $(MANDATORY_SRCS:.c=.o)
 
 #-------------------------------------------
 
-BONUS_SRCS = $(wildcard bonus_src/*.c)
+BONUS_SRCS = $(wildcard bonus_srcs/*.c)
 # BONUS_SRCS = $(addprefix bonus_srcs/,\
 )
 BONUS_OBJS = $(BONUS_SRCS:.c=.o)
@@ -97,10 +99,15 @@ ifeq ($(UNAME), Darwin)
 	install_name_tool -id $(MLX_A) $(MLX_A)
 endif
 
-# bonus: $(BONUS_NAME)
+bonus: $(BONUS_NAME)
 
-# $(BONUS_NAME): $(LIBFT_A) $(BONUS_OBJS)
-# 		$(CC) $(CFLAGS) -L./libft -lft $^ -o $@
+$(BONUS_NAME): $(LIBFT_A) $(MLX_A)  $(BONUS_OBJS)
+		@$(CC) $(CFLAGS) $^ $(LIBFT_A) $(MLX_A) $(MLX_FLAGS) -g -o $(NAME)
+		@touch $@
+		@echo $(GREEN)"\n==========================================================\n"$(EOC)
+		@echo $(YELLOW)"                     SO_LONG BONUS DONE"$(EOC)
+		@echo $(GREEN)"\n==========================================================\n"$(EOC)
+		@echo "Now your program in: "$(YELLOW)$(UNAME)!$(EOC) $(EMOJI)$(EMOJI)$(EMOJI)"...\n";
 
 clean:
 		@cd libft; make --no-print-directory clean

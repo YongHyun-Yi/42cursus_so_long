@@ -1,16 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   draw_utils.c                                       :+:      :+:    :+:   */
+/*   draw_utils_bonus.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:41:31 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 15:05:10 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/17 21:02:21 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long_bonus.h"
+
+int	create_trgb(int t, int r, int g, int b)
+{
+	return (t << 24 | r << 16 | g << 8 | b);
+}
 
 void	draw_image(void *mlx_ptr, void *win_ptr, t_img_data img_data, \
 t_vec2d pos)
@@ -49,7 +54,8 @@ void	draw_horizontal(t_game_data game_data, int y)
 
 void	draw_update(t_game_data game_data)
 {
-	int	y;
+	const char	*ui_text = "Move Count: ";
+	int			y;
 
 	y = 0;
 	while (y < game_data.map_height)
@@ -59,4 +65,9 @@ void	draw_update(t_game_data game_data)
 	}
 	draw_image(game_data.mlx_ptr, game_data.win_ptr, \
 	game_data.game_res.spr_player1, game_data.player_pos);
+	mlx_string_put(game_data.mlx_ptr, game_data.win_ptr, 0, 10, \
+	create_trgb(0, 255, 255, 255), (char *)ui_text);
 }
+
+// ft_pf_nbr_nosign_fd
+// ft_pf_nbrlen

@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:39:08 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 15:05:55 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/17 19:52:15 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ int	my_dfs(t_game_data game_data, char **visit_arr, t_list **dfs_stack)
 			can_exit++;
 		else if (game_data.map_arr[cur_pos->y][cur_pos->x] == 'C')
 			remain_c--;
-		if (!dfs_check_4dir(game_data, visit_arr, dfs_stack, cur_node->content))
-			break ;
+		dfs_check_horizontal(game_data, visit_arr, dfs_stack, cur_pos);
+		dfs_check_vertical(game_data, visit_arr, dfs_stack, cur_pos);
 		ft_lstdel_node(dfs_stack, cur_node, free);
 	}
 	ft_lstclear(dfs_stack, free);
@@ -67,28 +67,52 @@ int	dfs_check(t_game_data game_data, char **visit_arr, int x, int y)
 	return (0);
 }
 
-int	dfs_check_4dir(t_game_data game_data, char **visit_arr, \
+void	dfs_check_horizontal(t_game_data game_data, char **visit_arr, \
 t_list **dfs_stack, t_vec2d *cur_pos)
 {
 	if (dfs_check(game_data, visit_arr, cur_pos->x - 1, cur_pos->y))
 	{
 		if (!dfs_add(dfs_stack, visit_arr, cur_pos->x - 1, cur_pos->y))
-			return (0);
+		{
+			ft_lstclear(dfs_stack, free);
+			free_double_arr(visit_arr, game_data.map_height);
+			my_solong_error(&game_data, "Failed to create buffer \
+			for map file.\n");
+		}
 	}
 	if (dfs_check(game_data, visit_arr, cur_pos->x + 1, cur_pos->y))
 	{
 		if (!dfs_add(dfs_stack, visit_arr, cur_pos->x + 1, cur_pos->y))
-			return (0);
+		{
+			ft_lstclear(dfs_stack, free);
+			free_double_arr(visit_arr, game_data.map_height);
+			my_solong_error(&game_data, "Failed to create buffer \
+			for map file.\n");
+		}
 	}
+}
+
+void	dfs_check_vertical(t_game_data game_data, char **visit_arr, \
+t_list **dfs_stack, t_vec2d *cur_pos)
+{
 	if (dfs_check(game_data, visit_arr, cur_pos->x, cur_pos->y - 1))
 	{
 		if (!dfs_add(dfs_stack, visit_arr, cur_pos->x, cur_pos->y - 1))
-			return (0);
+		{
+			ft_lstclear(dfs_stack, free);
+			free_double_arr(visit_arr, game_data.map_height);
+			my_solong_error(&game_data, "Failed to create buffer \
+			for map file.\n");
+		}
 	}
 	if (dfs_check(game_data, visit_arr, cur_pos->x, cur_pos->y + 1))
 	{
 		if (!dfs_add(dfs_stack, visit_arr, cur_pos->x, cur_pos->y + 1))
-			return (0);
+		{
+			ft_lstclear(dfs_stack, free);
+			free_double_arr(visit_arr, game_data.map_height);
+			my_solong_error(&game_data, "Failed to create buffer \
+			for map file.\n");
+		}
 	}
-	return (1);
 }

@@ -6,35 +6,18 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 11:34:40 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 10:37:02 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/17 11:33:08 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
-#include "../mlx_linux/mlx.h"
 
-// 파싱 함수
-// gnl을 리스트에 저장한다
-// gnl로 읽어온 문자열에서 유효하지 않은 문자가 있는지 체크한다
-// gnl로 읽어온 문자열이 직사각형인지 체크한다
-// 이증배열 사이즈가될 map_height를 증가시킨다
-// 이중배열로 옮겨담는다
-// 오브젝트 갯수를 센다 (여기서 플레이어 위치를 설정)
-// 플레이어 위치를 기반으로 DFS 수행
-// 전부 통과하면 draw update 한번 수행후 loop 진행
-//
-// event_hook 함수
-// 현재 플레이어 위치를 기준으로 이동가능한지 체크
-// 이동가능하면 배열을 변경시킴
-// 수집품이라면 수집품갯수를 줄임
-// 출구라면 수집품갯수에 따라 조건분기
-
-void	free_double_arr(char **arr, size_t d_i)
+void	free_double_arr(char **arr, size_t n)
 {
 	size_t	idx;
 
 	idx = 0;
-	while (idx < d_i)
+	while (idx < n && arr[idx])
 		free(arr[idx++]);
 	free(arr);
 }
@@ -87,16 +70,7 @@ void load_game_res(t_game_data *game_data)
 {
 	void *mlx_ptr;
 	t_game_res *game_res;
-	// if (!load_xmp_file(mlx_ptr, &game_res->spr_empty, "./res/sprite/empty_space.xpm"))
-	// 	my_solong_error(game_data, "");
-	// if (!load_xmp_file(mlx_ptr, &game_res->spr_wall, "./res/sprite/wall.xpm"))
-	// 	my_solong_error(game_data, "");
-	// if (!load_xmp_file(mlx_ptr, &game_res->spr_collectible, "./res/sprite/collectible.xpm"))
-	// 	my_solong_error(game_data, "");
-	// if (!load_xmp_file(mlx_ptr, &game_res->spr_exit, "./res/sprite/exit.xpm"))
-	// 	my_solong_error(game_data, "");
-	// if (!load_xmp_file(mlx_ptr, &game_res->spr_player1, "./res/sprite/player1.xpm"))
-	// 	my_solong_error(game_data, "");
+
 	mlx_ptr = game_data->mlx_ptr;
 	game_res = &game_data->game_res;
 	if (!load_xmp_file(mlx_ptr, &game_res->spr_empty, "./res/sprite/empty_space.xpm") || \
@@ -105,7 +79,6 @@ void load_game_res(t_game_data *game_data)
 	!load_xmp_file(mlx_ptr, &game_res->spr_exit, "./res/sprite/exit.xpm") || \
 	!load_xmp_file(mlx_ptr, &game_res->spr_player1, "./res/sprite/player1.xpm"))
 	my_solong_error(game_data, "Failed to load game resources.\n");
-	// return (1);
 }
 
 t_vec2d get_player_pos(t_game_data game_data)
@@ -170,7 +143,7 @@ void draw_update(t_game_data game_data)
 	draw_image(game_data.mlx_ptr, game_data.win_ptr, game_data.game_res.spr_player1, game_data.player_pos);
 }
 
-int is_valid_characters(t_game_data game_data)
+void check_valid_characters(t_game_data game_data)
 {
 	char *charset;
 	int y;
@@ -184,15 +157,14 @@ int is_valid_characters(t_game_data game_data)
 		while (x < game_data.map_width)
 		{
 			if (ft_strchr(charset, game_data.map_arr[y][x]) == NULL)
-				return (0);
+				my_solong_error(&game_data, "Map file contains invalid characters.\n");
 			x++;
 		}
 		y++;
 	}
-	return (1);
 }
 
-int is_rectangle(t_game_data game_data)
+void check_rectangle(t_game_data game_data)
 {
 	int y;
 	size_t len;
@@ -204,13 +176,12 @@ int is_rectangle(t_game_data game_data)
 		if (len == 0)
 			len = ft_strlen(game_data.map_arr[y]) - (ft_strchr(game_data.map_arr[y], '\n') > 0);
 		else if (len != ft_strlen(game_data.map_arr[y]) - (ft_strchr(game_data.map_arr[y], '\n') > 0))
-			return (0);
+			my_solong_error(&game_data, "Map is not rectangular.\n");
 		y++;
 	}
-	return (1);
 }
 
-int is_wall_closed(t_game_data game_data)
+void check_wall_closed(t_game_data game_data)
 {
 	int y;
 	int x;
@@ -225,14 +196,13 @@ int is_wall_closed(t_game_data game_data)
 			{
 				if (game_data.map_arr[y][x] != '1')
 				{
-					return (0);
+					my_solong_error(&game_data, "The map is not walled.\n");
 				}
 			}
 			x++;
 		}
 		y++;
 	}
-	return (1);
 }
 
 int get_collectible_cnt(t_game_data game_data)
@@ -301,11 +271,10 @@ int get_player_cnt(t_game_data game_data)
 	return (cnt);
 }
 
-int is_valid_objcnt(t_game_data game_data)
+void check_valid_objcnt(t_game_data game_data)
 {
 	if (get_collectible_cnt(game_data) == 0 || get_exit_cnt(game_data) == 0 || get_exit_cnt(game_data) > 1 || get_player_cnt(game_data) == 0 || get_player_cnt(game_data) > 1)
-		return (0);
-	return (1);
+		my_solong_error(&game_data, "Invalid number of objects in map.\n");
 }
 
 int dfs_add(t_list **dfs_stack, char **visit_arr, int x, int y)
@@ -362,8 +331,6 @@ int dfs_check_4dir(t_game_data game_data, char **visit_arr, t_list **dfs_stack, 
 	return (1);
 }
 
-// dfs_loop
-
 int my_dfs(t_game_data game_data, char **visit_arr, t_list **dfs_stack)
 {
 	t_list *cur_node;
@@ -391,31 +358,83 @@ int my_dfs(t_game_data game_data, char **visit_arr, t_list **dfs_stack)
 	return (1);
 }
 
-int is_valid_path(t_game_data game_data)
+void check_valid_path(t_game_data game_data, char **visit_arr, t_list *dfs_stack)
 {
-	char **visit_arr;
 	int y;
-	t_list *dfs_stack;
-	int result;
 
-	visit_arr = (char **)malloc(sizeof(char *) * game_data.map_height);
 	y = 0;
 	while (y < game_data.map_height)
 	{
-		visit_arr[y] = ft_calloc(game_data.map_width, sizeof(char));
+		visit_arr[y] = calloc(game_data.map_width, sizeof(char *));
 		if (!visit_arr[y])
-			return (0);
+		{
+			free_double_arr(visit_arr, game_data.map_height);
+			my_solong_error(&game_data, "Failed to create buffer for map file.\n");
+		}
 		y++;
 	}
-	dfs_stack = NULL;
-
 	if (!dfs_add(&dfs_stack, visit_arr, game_data.player_pos.x, game_data.player_pos.y))
-		return (0);
-	result = my_dfs(game_data, visit_arr, &dfs_stack);
-
+	{
+		free_double_arr(visit_arr, game_data.map_height);
+		my_solong_error(&game_data, "Failed to create buffer for map file.\n");
+	}
+	if (!my_dfs(game_data, visit_arr, &dfs_stack))
+	{
+		free_double_arr(visit_arr, game_data.map_height);
+		my_solong_error(&game_data, "Map does not contain a valid path.\n");
+	}
 	free_double_arr(visit_arr, game_data.map_height);
+}
 
-	return (result);
+void map_arr_check(t_game_data *game_data)
+{
+	char **visit_arr;
+	t_list *dfs_stack;
+
+	check_valid_characters(*game_data);
+	check_rectangle(*game_data);
+	check_wall_closed(*game_data);
+	check_valid_objcnt(*game_data);
+	game_data->remain_c = get_collectible_cnt(*game_data);
+	game_data->player_pos = get_player_pos(*game_data);
+	game_data->map_arr[game_data->player_pos.y][game_data->player_pos.x] = '0';
+	visit_arr = (char **)calloc(game_data->map_height, sizeof(char *));
+	if (!visit_arr)
+		my_solong_error(game_data, "Failed to create buffer for map file.\n");
+	dfs_stack = NULL;
+	check_valid_path(*game_data, visit_arr, dfs_stack);
+}
+
+void move_event(int keycode, t_game_data *game_data)
+{
+	t_vec2d cur_pos;
+
+	cur_pos = game_data->player_pos;
+	cur_pos.y += ((keycode == KEY_S) - (keycode == KEY_W));
+	cur_pos.x += ((keycode == KEY_D) - (keycode == KEY_A));
+	if (game_data->map_arr[cur_pos.y][cur_pos.x] != '1')
+	{
+		if (game_data->map_arr[cur_pos.y][cur_pos.x] == 'C')
+		{
+			game_data->map_arr[cur_pos.y][cur_pos.x] = '0';
+			game_data->remain_c--;
+		}
+		else if (game_data->map_arr[cur_pos.y][cur_pos.x] == 'E' && !game_data->remain_c)
+			my_solong_exit(game_data);
+		game_data->player_pos.x = cur_pos.x;
+		game_data->player_pos.y = cur_pos.y;
+		ft_printf("Move Count: %d\n", ++(game_data->move_cnt));
+	}
+}
+
+int my_key_hook(int keycode, t_game_data *game_data)
+{
+	if (keycode == KEY_ESC)
+		my_solong_exit(game_data);
+	else if (keycode == KEY_W || keycode == KEY_A || keycode == KEY_S || keycode == KEY_D)
+		move_event(keycode, game_data);
+	draw_update(*game_data);
+	return(1);
 }
 
 t_list *gnl_to_list(char *map_file_path, t_game_data *game_data)
@@ -467,62 +486,6 @@ void list_to_map_arr(t_list *map_list, t_game_data *game_data)
 		i++;
 	}
 	ft_lstclear(&map_list, NULL);
-	// return (1);
-}
-
-void map_arr_check(t_game_data *game_data)
-{
-	if (!is_valid_characters(*game_data)) // character check
-		my_solong_error(game_data, "Map file contains invalid characters.\n");
-	
-	if (!is_rectangle(*game_data)) // rectangle check
-		my_solong_error(game_data, "Map is not rectangular.\n");
-	
-	if (!is_wall_closed(*game_data)) // wall closed check
-		my_solong_error(game_data, "The map is not walled.\n");
-	
-	if (!is_valid_objcnt(*game_data)) // object count check
-		my_solong_error(game_data, "Invalid number of objects in map.\n");
-	game_data->remain_c = get_collectible_cnt(*game_data);
-	game_data->player_pos = get_player_pos(*game_data);
-	game_data->map_arr[game_data->player_pos.y][game_data->player_pos.x] = '0';
-
-	if (!is_valid_path(*game_data)) // DFS check
-		my_solong_error(game_data, "Map does not contain a valid path.\n");
-	
-	// return (1);
-}
-
-void move_event(int keycode, t_game_data *game_data)
-{
-	t_vec2d cur_pos;
-
-	cur_pos = game_data->player_pos;
-	cur_pos.y += ((keycode == KEY_S) - (keycode == KEY_W));
-	cur_pos.x += ((keycode == KEY_D) - (keycode == KEY_A));
-	if (game_data->map_arr[cur_pos.y][cur_pos.x] != '1')
-	{
-		if (game_data->map_arr[cur_pos.y][cur_pos.x] == 'C')
-		{
-			game_data->map_arr[cur_pos.y][cur_pos.x] = '0';
-			game_data->remain_c--;
-		}
-		else if (game_data->map_arr[cur_pos.y][cur_pos.x] == 'E' && !game_data->remain_c)
-			my_solong_exit(game_data);
-		game_data->player_pos.x = cur_pos.x;
-		game_data->player_pos.y = cur_pos.y;
-		ft_printf("Move Count: %d\n", ++(game_data->move_cnt));
-	}
-}
-
-int my_key_hook(int keycode, t_game_data *game_data)
-{
-	if (keycode == KEY_ESC)
-		my_solong_exit(game_data);
-	else if (keycode == KEY_W || keycode == KEY_A || keycode == KEY_S || keycode == KEY_D)
-		move_event(keycode, game_data);
-	draw_update(*game_data);
-	return(1);
 }
 
 void leakcheck()
@@ -533,7 +496,7 @@ void leakcheck()
 int main(int argc, char *argv[])
 {
 	t_game_data game_data;
-	// t_list *map_list;
+
 	atexit(leakcheck);
 	ft_bzero(&game_data, sizeof(t_game_data));
 	if (argc != 2)
@@ -542,19 +505,11 @@ int main(int argc, char *argv[])
 		my_solong_error(&game_data, "Invalid extension of file.\n");
 	list_to_map_arr(gnl_to_list(argv[1], &game_data), &game_data);
 	game_data.map_width = ft_strlen(game_data.map_arr[0]) - (ft_strchr(game_data.map_arr[0], '\n') > 0);
-	// if (!map_arr_check(&game_data))
-	// 	my_solong_error(&game_data, "");
 	map_arr_check(&game_data);
 	game_data.mlx_ptr = mlx_init();
 	game_data.win_ptr = mlx_new_window(game_data.mlx_ptr, game_data.map_width * 32, game_data.map_height * 32, "so_long");
-	
-	// if (!load_game_res(game_data.mlx_ptr, &game_data.game_res))
-	// 	my_solong_error(&game_data, "");
-	// load_game_res(game_data.mlx_ptr, &game_data.game_res);
 	load_game_res(&game_data);
-	
 	draw_update(game_data);
-
 	mlx_key_hook(game_data.win_ptr, my_key_hook, &game_data);
 	mlx_hook(game_data.win_ptr, 17, 0, my_solong_exit, &game_data);
 	mlx_loop(game_data.mlx_ptr);

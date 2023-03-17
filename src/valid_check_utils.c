@@ -6,17 +6,17 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:37:23 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 13:38:37 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/17 14:00:47 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-int get_collectible_cnt(t_game_data game_data)
+int	get_collectible_cnt(t_game_data game_data)
 {
-	int y;
-	int x;
-	int cnt;
+	int	y;
+	int	x;
+	int	cnt;
 
 	cnt = 0;
 	y = 0;
@@ -34,11 +34,11 @@ int get_collectible_cnt(t_game_data game_data)
 	return (cnt);
 }
 
-int get_exit_cnt(t_game_data game_data)
+int	get_exit_cnt(t_game_data game_data)
 {
-	int y;
-	int x;
-	int cnt;
+	int	y;
+	int	x;
+	int	cnt;
 
 	cnt = 0;
 	y = 0;
@@ -56,11 +56,11 @@ int get_exit_cnt(t_game_data game_data)
 	return (cnt);
 }
 
-int get_player_cnt(t_game_data game_data)
+int	get_player_cnt(t_game_data game_data)
 {
-	int y;
-	int x;
-	int cnt;
+	int	y;
+	int	x;
+	int	cnt;
 
 	cnt = 0;
 	y = 0;
@@ -78,9 +78,9 @@ int get_player_cnt(t_game_data game_data)
 	return (cnt);
 }
 
-t_vec2d get_player_pos(t_game_data game_data)
+t_vec2d	get_player_pos(t_game_data game_data)
 {
-	t_vec2d pos;
+	t_vec2d	pos;
 
 	pos.y = 0;
 	while (pos.y < game_data.map_height)

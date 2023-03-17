@@ -6,13 +6,13 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:40:47 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 13:41:18 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/17 14:04:24 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-int my_solong_exit(t_game_data *game_data)
+int	my_solong_exit(t_game_data *game_data)
 {
 	if (game_data->map_arr)
 		free_double_arr(game_data->map_arr, game_data->map_height);
@@ -22,7 +22,7 @@ int my_solong_exit(t_game_data *game_data)
 	exit(EXIT_SUCCESS);
 }
 
-void my_solong_error(t_game_data *game_data, char *err_msg)
+void	my_solong_error(t_game_data *game_data, char *err_msg)
 {
 	if (game_data->map_arr)
 		free_double_arr(game_data->map_arr, game_data->map_height);

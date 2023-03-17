@@ -1,5 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   os_keycode_define.h                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/03/17 14:10:08 by yonghyle          #+#    #+#             */
+/*   Updated: 2023/03/17 14:12:02 by yonghyle         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#define CUR_OS "Darwin"
+#ifndef OS_KEYCODE_DEFINE_H
+# define OS_KEYCODE_DEFINE_H
 
 typedef enum e_keycode{
 	KEY_A = 0,
@@ -45,4 +57,6 @@ typedef enum e_keycode{
 	KEY_TAB = 48,
 	KEY_SPACEBAR = 49,
 	KEY_ESC = 53
-} t_keycode;
+}	t_keycode;
+
+#endif

@@ -6,18 +6,18 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:39:08 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 13:40:33 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/17 14:03:47 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-int my_dfs(t_game_data game_data, char **visit_arr, t_list **dfs_stack)
+int	my_dfs(t_game_data game_data, char **visit_arr, t_list **dfs_stack)
 {
-	t_list *cur_node;
-	t_vec2d *cur_pos;
-	size_t can_exit;
-	size_t remain_c;
+	t_list	*cur_node;
+	t_vec2d	*cur_pos;
+	size_t	can_exit;
+	size_t	remain_c;
 
 	can_exit = 0;
 	remain_c = game_data.remain_c;
@@ -39,10 +39,10 @@ int my_dfs(t_game_data game_data, char **visit_arr, t_list **dfs_stack)
 	return (1);
 }
 
-int dfs_add(t_list **dfs_stack, char **visit_arr, int x, int y)
+int	dfs_add(t_list **dfs_stack, char **visit_arr, int x, int y)
 {
-	t_list *new_node;
-	t_vec2d *new_pos;
+	t_list	*new_node;
+	t_vec2d	*new_pos;
 
 	visit_arr[y][x] = 1;
 	new_pos = (t_vec2d *)malloc(sizeof(t_vec2d));
@@ -57,7 +57,7 @@ int dfs_add(t_list **dfs_stack, char **visit_arr, int x, int y)
 	return (1);
 }
 
-int dfs_check(t_game_data game_data, char **visit_arr, int x, int y)
+int	dfs_check(t_game_data game_data, char **visit_arr, int x, int y)
 {
 	if (x >= 0 && x < game_data.map_width && y >= 0 && y < game_data.map_height)
 	{
@@ -67,7 +67,8 @@ int dfs_check(t_game_data game_data, char **visit_arr, int x, int y)
 	return (0);
 }
 
-int dfs_check_4dir(t_game_data game_data, char **visit_arr, t_list **dfs_stack, t_vec2d *cur_pos)
+int	dfs_check_4dir(t_game_data game_data, char **visit_arr, \
+t_list **dfs_stack, t_vec2d *cur_pos)
 {
 	if (dfs_check(game_data, visit_arr, cur_pos->x - 1, cur_pos->y))
 	{

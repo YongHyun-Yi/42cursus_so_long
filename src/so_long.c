@@ -6,16 +6,16 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 11:34:40 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 13:56:17 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/17 14:05:38 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-void map_arr_check(t_game_data *game_data)
+void	map_arr_check(t_game_data *game_data)
 {
-	char **visit_arr;
-	t_list *dfs_stack;
+	char	**visit_arr;
+	t_list	*dfs_stack;
 
 	check_rectangle(*game_data);
 	check_valid_characters(*game_data);
@@ -31,14 +31,15 @@ void map_arr_check(t_game_data *game_data)
 	check_valid_path(*game_data, visit_arr, dfs_stack);
 }
 
-void list_to_map_arr(t_list *map_list, t_game_data *game_data)
+void	list_to_map_arr(t_list *map_list, t_game_data *game_data)
 {
-	t_list *list_iter;
-	int i;
+	t_list	*list_iter;
+	int		i;
 
 	i = 0;
 	list_iter = map_list;
-	game_data->map_arr = (char **)malloc(sizeof(char *) * game_data->map_height);
+	game_data->map_arr = (char **)malloc(sizeof(char *) * \
+	game_data->map_height);
 	if (!game_data->map_arr)
 	{
 		ft_lstclear(&map_list, free);
@@ -53,12 +54,12 @@ void list_to_map_arr(t_list *map_list, t_game_data *game_data)
 	ft_lstclear(&map_list, NULL);
 }
 
-t_list *gnl_to_list(char *map_file_path, t_game_data *game_data)
+t_list	*gnl_to_list(char *map_file_path, t_game_data *game_data)
 {
-	int fd;
-	t_list *map_list;
-	t_list *new_node;
-	char *gnl;
+	int		fd;
+	t_list	*map_list;
+	t_list	*new_node;
+	char	*gnl;
 
 	fd = open(map_file_path, O_RDONLY);
 	if (fd < 0)
@@ -72,7 +73,8 @@ t_list *gnl_to_list(char *map_file_path, t_game_data *game_data)
 		{
 			ft_lstclear(&map_list, free);
 			close(fd);
-			my_solong_error(game_data, "Failed to create buffer for map file.\n");
+			my_solong_error(game_data, "Failed to create buffer \
+			for map file.\n");
 		}
 		ft_lstadd_back(&map_list, new_node);
 		game_data->map_height++;
@@ -82,38 +84,27 @@ t_list *gnl_to_list(char *map_file_path, t_game_data *game_data)
 	return (map_list);
 }
 
-void leakcheck()
+int	main(int argc, char *argv[])
 {
-	system("leaks so_long");
-}
+	t_game_data	game_data;
 
-int main(int argc, char *argv[])
-{
-	t_game_data game_data;
-
-	atexit(leakcheck);
 	ft_bzero(&game_data, sizeof(t_game_data));
 	if (argc != 2)
-		my_solong_error(&game_data, "The program was given invalid arguments.\n");
-	if (ft_strlen(argv[1]) < 4 || ft_strncmp(argv[1] + ft_strlen(argv[1]) - 4, ".ber", 4))
+		my_solong_error(&game_data, "The program was given invalid \
+		arguments.\n");
+	if (ft_strlen(argv[1]) < 4 || ft_strncmp(argv[1] + ft_strlen(argv[1]) \
+	- 4, ".ber", 4))
 		my_solong_error(&game_data, "Invalid extension of file.\n");
 	list_to_map_arr(gnl_to_list(argv[1], &game_data), &game_data);
-	game_data.map_width = ft_strlen(game_data.map_arr[0]) - (ft_strchr(game_data.map_arr[0], '\n') > 0);
+	game_data.map_width = ft_strlen(game_data.map_arr[0]) - \
+	(ft_strchr(game_data.map_arr[0], '\n') > 0);
 	map_arr_check(&game_data);
 	game_data.mlx_ptr = mlx_init();
-	game_data.win_ptr = mlx_new_window(game_data.mlx_ptr, game_data.map_width * 32, game_data.map_height * 32, "so_long");
+	game_data.win_ptr = mlx_new_window(game_data.mlx_ptr, \
+	game_data.map_width * 32, game_data.map_height * 32, "so_long");
 	load_game_res(&game_data);
 	draw_update(game_data);
 	mlx_key_hook(game_data.win_ptr, my_key_hook, &game_data);
 	mlx_hook(game_data.win_ptr, 17, 0, my_solong_exit, &game_data);
 	mlx_loop(game_data.mlx_ptr);
 }
-
-// 초기 함수들 - 메인, list로 파싱, arr로 파싱, 유효성검사
-// 유효성 검사하는 함수들 - 문자검사, 직사각형검사, 벽검사, 오브젝트갯수검사, 경로 검사 v
-// 유효성검사 보조 함수들 - 수집물갯수, 출구갯수, 플레이어갯수, player pos v
-// DFS 함수들 - dfs, dfs add, dfs check, dfs 4 check v
-// 드로우 함수들 - 드로우 이미미, 호라이즌탈, 업데이트 v
-// 리소스 함수들 - 로드, 프리, load xmp v
-// 이벤트 함수들 - key_hook, move event v
-// 기타 함수들 - exit, error, 더블배열 프리 v

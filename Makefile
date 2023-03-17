@@ -6,7 +6,7 @@
 #    By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/17 09:38:06 by yonghyle          #+#    #+#              #
-#    Updated: 2023/03/17 10:35:04 by yonghyle         ###   ########.fr        #
+#    Updated: 2023/03/17 14:07:31 by yonghyle         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -60,13 +60,17 @@ INC += -I$(MLX_DIR) -I./includes/os_$(UNAME)
 
 #-------------------------------------------
 
-MANDATORY_SRCS = $(wildcard src/*.c)
-# MANDATORY_SRCS = tutorial.c
+MANDATORY_SRCS = $(addprefix srcs/, \
+draw_utils.c            event_utils.c           res_utils.c             valid_check.c \
+etc_utils.c             my_dfs.c                so_long.c               valid_check_utils.c \
+)
 MANDATORY_OBJS = $(MANDATORY_SRCS:.c=.o)
 
 #-------------------------------------------
 
-BONUS_SRCS = $()
+BONUS_SRCS = $(wildcard bonus_src/*.c)
+# BONUS_SRCS = $(addprefix bonus_srcs/,\
+)
 BONUS_OBJS = $(BONUS_SRCS:.c=.o)
 
 #-------------------------------------------

@@ -48,4 +48,39 @@ typedef struct s_game_data
 	t_game_res game_res;
 }	t_game_data;
 
+t_list	*gnl_to_list(char *map_file_path, t_game_data *game_data);
+void	list_to_map_arr(t_list *map_list, t_game_data *game_data);
+void	map_arr_check(t_game_data *game_data);
+
+void	check_valid_characters(t_game_data game_data);
+void	check_rectangle(t_game_data game_data);
+void	check_wall_closed(t_game_data game_data);
+void	check_valid_objcnt(t_game_data game_data);
+void	check_valid_path(t_game_data game_data, char **visit_arr, t_list *dfs_stack);
+
+int		get_collectible_cnt(t_game_data game_data);
+int		get_exit_cnt(t_game_data game_data);
+int		get_player_cnt(t_game_data game_data);
+t_vec2d	get_player_pos(t_game_data game_data);
+
+int		my_dfs(t_game_data game_data, char **visit_arr, t_list **dfs_stack);
+int		dfs_add(t_list **dfs_stack, char **visit_arr, int x, int y);
+int		dfs_check(t_game_data game_data, char **visit_arr, int x, int y);
+int		dfs_check_4dir(t_game_data game_data, char **visit_arr, t_list **dfs_stack, t_vec2d *cur_pos);
+
+void	draw_image(void *mlx_ptr, void *win_ptr, t_img_data img_data, t_vec2d pos);
+void	draw_horizontal(t_game_data game_data, int y);
+void	draw_update(t_game_data game_data);
+
+void	load_game_res(t_game_data *game_data);
+void	free_game_res(void *mlx_ptr, t_game_res *game_res);
+int		load_xmp_file(void *mlx_ptr, t_img_data *img_data, char *path);
+
+int		my_key_hook(int keycode, t_game_data *game_data);
+void	move_event(int keycode, t_game_data *game_data);
+
+int		my_solong_exit(t_game_data *game_data);
+void	my_solong_error(t_game_data *game_data, char *err_msg);
+void	free_double_arr(char **arr, size_t n);
+
 #endif

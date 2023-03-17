@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   so_long.h                                          :+:      :+:    :+:   */
+/*   so_long_bonus.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 14:08:18 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 19:21:36 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/17 15:03:23 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SO_LONG_H
-# define SO_LONG_H
+#ifndef SO_LONG_BONUS_H
+# define SO_LONG_BONUS_H
 
 # include <unistd.h>
 # include <stdlib.h>
@@ -78,9 +78,7 @@ t_vec2d	get_player_pos(t_game_data game_data);
 int		my_dfs(t_game_data game_data, char **visit_arr, t_list **dfs_stack);
 int		dfs_add(t_list **dfs_stack, char **visit_arr, int x, int y);
 int		dfs_check(t_game_data game_data, char **visit_arr, int x, int y);
-void	dfs_check_horizontal(t_game_data game_data, char **visit_arr, \
-t_list **dfs_stack, t_vec2d *cur_pos);
-void	dfs_check_vertical(t_game_data game_data, char **visit_arr, \
+int		dfs_check_4dir(t_game_data game_data, char **visit_arr, \
 t_list **dfs_stack, t_vec2d *cur_pos);
 
 void	draw_image(void *mlx_ptr, void *win_ptr, t_img_data img_data, \

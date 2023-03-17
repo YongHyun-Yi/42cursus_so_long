@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 11:34:40 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/15 14:57:26 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/17 10:37:02 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,14 +29,14 @@
 // 수집품이라면 수집품갯수를 줄임
 // 출구라면 수집품갯수에 따라 조건분기
 
-void	free_map_arr(char **map_arr, int map_height)
+void	free_double_arr(char **arr, size_t d_i)
 {
 	size_t	idx;
 
 	idx = 0;
-	while (idx < map_height)
-		free(map_arr[idx++]);
-	free(map_arr);
+	while (idx < d_i)
+		free(arr[idx++]);
+	free(arr);
 }
 
 void free_game_res(void *mlx_ptr, t_game_res *game_res)
@@ -56,7 +56,7 @@ void free_game_res(void *mlx_ptr, t_game_res *game_res)
 int my_solong_exit(t_game_data *game_data)
 {
 	if (game_data->map_arr)
-		free_map_arr(game_data->map_arr, game_data->map_height);
+		free_double_arr(game_data->map_arr, game_data->map_height);
 	free_game_res(game_data->mlx_ptr, &game_data->game_res);
 	if (game_data->win_ptr)
 		mlx_destroy_window(game_data->mlx_ptr, game_data->win_ptr);
@@ -66,7 +66,7 @@ int my_solong_exit(t_game_data *game_data)
 void my_solong_error(t_game_data *game_data, char *err_msg)
 {
 	if (game_data->map_arr)
-		free_map_arr(game_data->map_arr, game_data->map_height);
+		free_double_arr(game_data->map_arr, game_data->map_height);
 	free_game_res(game_data->mlx_ptr, &game_data->game_res);
 	if (game_data->win_ptr)
 		mlx_destroy_window(game_data->mlx_ptr, game_data->win_ptr);
@@ -110,25 +110,21 @@ void load_game_res(t_game_data *game_data)
 
 t_vec2d get_player_pos(t_game_data game_data)
 {
-	int y;
-	int x;
 	t_vec2d pos;
 
-	y = 0;
-	while (y < game_data.map_height)
+	pos.y = 0;
+	while (pos.y < game_data.map_height)
 	{
-		x = 0;
-		while (x < game_data.map_width)
+		pos.x = 0;
+		while (pos.x < game_data.map_width)
 		{
-			if (game_data.map_arr[y][x] == 'P')
+			if (game_data.map_arr[pos.y][pos.x] == 'P')
 			{
-				pos.x = x;
-				pos.y = y;
 				return (pos);
 			}
-			x++;
+			pos.x++;
 		}
-		y++;
+		pos.y++;
 	}
 	return (pos);
 }
@@ -400,6 +396,7 @@ int is_valid_path(t_game_data game_data)
 	char **visit_arr;
 	int y;
 	t_list *dfs_stack;
+	int result;
 
 	visit_arr = (char **)malloc(sizeof(char *) * game_data.map_height);
 	y = 0;
@@ -414,8 +411,11 @@ int is_valid_path(t_game_data game_data)
 
 	if (!dfs_add(&dfs_stack, visit_arr, game_data.player_pos.x, game_data.player_pos.y))
 		return (0);
+	result = my_dfs(game_data, visit_arr, &dfs_stack);
 
-	return (my_dfs(game_data, visit_arr, &dfs_stack));
+	free_double_arr(visit_arr, game_data.map_height);
+
+	return (result);
 }
 
 t_list *gnl_to_list(char *map_file_path, t_game_data *game_data)
@@ -427,7 +427,7 @@ t_list *gnl_to_list(char *map_file_path, t_game_data *game_data)
 
 	fd = open(map_file_path, O_RDONLY);
 	if (fd < 0)
-		return (NULL);
+		my_solong_error(game_data, "Cannot open file.\n");
 	map_list = NULL;
 	gnl = get_next_line(fd);
 	while (gnl)
@@ -457,7 +457,7 @@ void list_to_map_arr(t_list *map_list, t_game_data *game_data)
 	game_data->map_arr = (char **)malloc(sizeof(char *) * game_data->map_height);
 	if (!game_data->map_arr)
 	{
-		ft_lstclear(&map_list, NULL);
+		ft_lstclear(&map_list, free);
 		my_solong_error(game_data, "Failed to create buffer for map file.\n");
 	}
 	while (list_iter)
@@ -525,14 +525,21 @@ int my_key_hook(int keycode, t_game_data *game_data)
 	return(1);
 }
 
+void leakcheck()
+{
+	system("leaks so_long");
+}
+
 int main(int argc, char *argv[])
 {
 	t_game_data game_data;
 	// t_list *map_list;
-
-	if (argc != 2)
-		return (0);
+	atexit(leakcheck);
 	ft_bzero(&game_data, sizeof(t_game_data));
+	if (argc != 2)
+		my_solong_error(&game_data, "The program was given invalid arguments.\n");
+	if (ft_strlen(argv[1]) < 4 || ft_strncmp(argv[1] + ft_strlen(argv[1]) - 4, ".ber", 4))
+		my_solong_error(&game_data, "Invalid extension of file.\n");
 	list_to_map_arr(gnl_to_list(argv[1], &game_data), &game_data);
 	game_data.map_width = ft_strlen(game_data.map_arr[0]) - (ft_strchr(game_data.map_arr[0], '\n') > 0);
 	// if (!map_arr_check(&game_data))

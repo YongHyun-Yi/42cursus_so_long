@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 14:08:18 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/18 20:25:21 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/18 23:14:22 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ int		get_collectible_cnt(t_game_data game_data);
 int		get_exit_cnt(t_game_data game_data);
 int		get_player_cnt(t_game_data game_data);
 t_vec2d	get_player_pos(t_game_data game_data);
+void	create_pat_arr(t_game_data *game_data);
 
 int		my_dfs(t_game_data game_data, char **visit_arr, t_list **dfs_stack);
 int		dfs_add(t_list **dfs_stack, char **visit_arr, int x, int y);
@@ -103,5 +104,11 @@ int		move_event(int keycode, t_game_data *game_data);
 int		my_solong_exit(t_game_data *game_data);
 void	my_solong_error(t_game_data *game_data, char *err_msg);
 void	free_double_arr(char **arr, size_t n);
+int		is_rect(char **map_arr, int x, int y);
+
+int		get_area_width(char *pat_arr, int start_x);
+int		get_area_height(char **pat_arr, int start_x, int start_y);
+int		get_area_size(char **pat_arr, int start_x, int start_y);
+void	get_largest_area_pos(t_game_data game_data, t_vec2d	*max_pos);
 
 #endif

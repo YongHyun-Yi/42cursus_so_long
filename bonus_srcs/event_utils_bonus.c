@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:43:36 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/18 20:08:28 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/18 23:15:39 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ void	enemy_move_event(t_game_data *game_data)
 	t_vec2d	cur_pos;
 	int		dir;
 
+	if (game_data->enemy_pos.x < 0)
+		return ;
 	while (1)
 	{
 		cur_pos = game_data->enemy_pos;

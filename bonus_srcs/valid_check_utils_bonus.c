@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:37:23 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 15:06:32 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/18 23:58:58 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,4 +97,30 @@ t_vec2d	get_player_pos(t_game_data game_data)
 		pos.y++;
 	}
 	return (pos);
+}
+
+void	create_pat_arr(t_game_data *game_data)
+{
+	int	y;
+	int	x;
+
+	game_data->pat_arr = (char **)malloc(sizeof(char *) * \
+	game_data->map_height);
+	if (!game_data->pat_arr)
+		my_solong_error(game_data, "Failed to create buffer for map file.\n");
+	y = 0;
+	while (y < game_data->map_height)
+	{
+		game_data->pat_arr[y] = (char *)malloc(game_data->map_width);
+		if (!game_data->pat_arr[y])
+			my_solong_error(game_data, "Failed to create buffer for map \
+			file.\n");
+		x = 0;
+		while (x < game_data->map_width)
+		{
+			game_data->pat_arr[y][x] = is_rect(game_data->map_arr, x, y);
+			x++;
+		}
+		y++;
+	}
 }

@@ -6,11 +6,32 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:40:47 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 15:05:31 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/18 23:11:43 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long_bonus.h"
+
+int	is_rect(char **map_arr, int x, int y)
+{
+	if (map_arr[y][x] == '1')
+		return (0);
+	if (map_arr[y - 1][x] != '1')
+	{
+		if (map_arr[y - 1][x - 1] != '1' && map_arr[y][x - 1] != '1')
+			return (1);
+		else if (map_arr[y - 1][x + 1] != '1' && map_arr[y][x + 1] != '1')
+			return (1);
+	}
+	else if (map_arr[y + 1][x] != '1')
+	{
+		if (map_arr[y + 1][x - 1] != '1' && map_arr[y][x - 1] != '1')
+			return (1);
+		else if (map_arr[y + 1][x + 1] != '1' && map_arr[y][x + 1] != '1')
+			return (1);
+	}
+	return (0);
+}
 
 int	my_solong_exit(t_game_data *game_data)
 {

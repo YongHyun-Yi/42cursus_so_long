@@ -43,7 +43,7 @@ typedef struct s_game_res
 	t_img_data	spr_wall;
 	t_img_data	spr_collectible;
 	t_img_data	spr_exit;
-	t_img_data	spr_player1;
+	t_img_data	spr_player[2];
 }	t_game_res;
 
 typedef struct s_game_data

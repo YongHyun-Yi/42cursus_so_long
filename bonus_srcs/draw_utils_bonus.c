@@ -54,8 +54,9 @@ void	draw_horizontal(t_game_data game_data, int y)
 
 void	draw_update(t_game_data game_data)
 {
-	const char	*ui_text = "Move Count: ";
 	int			y;
+	const char	*ui_text = "Move Count: ";
+	char		*ui_count;
 
 	y = 0;
 	while (y < game_data.map_height)
@@ -64,10 +65,12 @@ void	draw_update(t_game_data game_data)
 		y++;
 	}
 	draw_image(game_data.mlx_ptr, game_data.win_ptr, \
-	game_data.game_res.spr_player1, game_data.player_pos);
-	mlx_string_put(game_data.mlx_ptr, game_data.win_ptr, 0, 10, \
+	game_data.game_res.spr_player[game_data.spr_frame], \
+	game_data.player_pos);
+	mlx_string_put(game_data.mlx_ptr, game_data.win_ptr, 5, 15, \
 	create_trgb(0, 255, 255, 255), (char *)ui_text);
+	ui_count = ft_itoa(game_data.move_cnt);
+	mlx_string_put(game_data.mlx_ptr, game_data.win_ptr, 75, 15, \
+	create_trgb(0, 255, 255, 255), ui_count);
+	free(ui_count);
 }
-
-// ft_pf_nbr_nosign_fd
-// ft_pf_nbrlen

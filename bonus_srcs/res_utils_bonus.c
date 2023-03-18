@@ -25,7 +25,9 @@ void	load_game_res(t_game_data *game_data)
 	!load_xmp_file(mlx_ptr, &game_res->spr_collectible, \
 	"./res/sprite/collectible.xpm") || !load_xmp_file(mlx_ptr, \
 	&game_res->spr_exit, "./res/sprite/exit.xpm") || \
-	!load_xmp_file(mlx_ptr, &game_res->spr_player1, "./res/sprite/player1.xpm"))
+	!load_xmp_file(mlx_ptr, &game_res->spr_player[0], \
+	"./res/sprite/player1.xpm") || !load_xmp_file(mlx_ptr, \
+	&game_res->spr_player[1], "./res/sprite/player2.xpm"))
 		my_solong_error(game_data, "Failed to load game resources.\n");
 }
 
@@ -39,8 +41,10 @@ void	free_game_res(void *mlx_ptr, t_game_res *game_res)
 		mlx_destroy_image(mlx_ptr, (game_res->spr_collectible).img_ptr);
 	if ((game_res->spr_exit).img_ptr)
 		mlx_destroy_image(mlx_ptr, (game_res->spr_exit).img_ptr);
-	if ((game_res->spr_player1).img_ptr)
-		mlx_destroy_image(mlx_ptr, (game_res->spr_player1).img_ptr);
+	if ((game_res->spr_player[0]).img_ptr)
+		mlx_destroy_image(mlx_ptr, (game_res->spr_player[0]).img_ptr);
+	if ((game_res->spr_player[1]).img_ptr)
+		mlx_destroy_image(mlx_ptr, (game_res->spr_player[1]).img_ptr);
 }
 
 int	load_xmp_file(void *mlx_ptr, t_img_data *img_data, char *path)

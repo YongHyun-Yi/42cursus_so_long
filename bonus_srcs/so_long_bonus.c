@@ -6,40 +6,11 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 11:34:40 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/19 00:08:58 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/19 00:36:45 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long_bonus.h"
-
-// spawn enemy
-// 가장 큰 사각형을 찾는다
-// 최소 사이즈는 (2, 3) or (3, 2) 이다
-// 없으면 -1, -1에 박아놓고 움직이지 않는다
-// 플레이어, 출구 위치와 겹치면 안된다
-// 위치를 잘못잡으면 계속해서 재시도한다
-//
-// 큰 사각형 찾기 알고리즘을 사용하지 말자...
-// pat_arr에서 1인 좌표 하나를 변수에 저장하고
-// 순회하며 인접한 1당 크기를 잰다
-// 순회가 끝나면 다음 좌표를 잡고 잰다
-// 가장 사각형이 큰 시작점의 좌표를 반환한다
-//
-// 그 시작점을 반환받고
-// 사각형의 가로, 세로를 다시 구한다
-// 그 안에서 랜덤으로 스폰위치를 정한다
-// 플레이어, 출구와 겹치면 재시도한다
-//
-// pat_arr에서 1인 좌표가 하나도 없으면
-// 반환받은 좌표값을 통해 확인
-// 이럴떈 -1, -1에 박아놓고 움직이지 않는다
-//
-// 1. 현재 좌표가 벽이 아니면 시작
-// 2. 현재부터 시작해서 벽이 나올때까지 옆으로 이동하며 체크
-// 3. 벽이 나오면 중단하고 가로길이를 저장
-// 4. x좌표는 같지만 y를 +1을 한채로 다시 순회
-// 5. 가로길이가 다르면 중단
-// 6. y에서 벽이 나오면 중단
 
 void	spwan_enemy(t_game_data *game_data)
 {
@@ -47,6 +18,7 @@ void	spwan_enemy(t_game_data *game_data)
 	int		width;
 	int		height;
 
+	ft_bzero(&area_pos, sizeof(t_vec2d));
 	get_largest_area_pos(*game_data, &area_pos);
 	width = get_area_width(game_data->pat_arr[area_pos.y], area_pos.x);
 	height = get_area_height(game_data->pat_arr, area_pos.x, area_pos.y);

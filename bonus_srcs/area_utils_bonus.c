@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/18 23:10:27 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/18 23:58:46 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/19 00:37:34 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,7 @@ void	get_largest_area_pos(t_game_data game_data, t_vec2d	*area_pos)
 		iter.x = 0;
 		while (iter.x < game_data.map_width)
 		{
-			if (game_data.pat_arr[iter.y][iter.x] && \
-			get_area_size(game_data.pat_arr, iter.x, iter.y) > max_size)
+			if (get_area_size(game_data.pat_arr, iter.x, iter.y) > max_size)
 			{
 				max_size = get_area_size(game_data.pat_arr, iter.x, iter.y);
 				area_pos->x = iter.x;

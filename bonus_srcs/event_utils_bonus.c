@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:43:36 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/18 23:15:39 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/19 01:42:31 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,10 @@ void	collision_check(t_game_data *game_data)
 	if (game_data->player_pos.x == game_data->enemy_pos.x && \
 	game_data->player_pos.y == game_data->enemy_pos.y)
 	{
-		usleep(500000);
-		my_solong_exit(game_data);
+		game_data->game_over = 1;
+		mlx_string_put(game_data->mlx_ptr, game_data->win_ptr, 5, game_data->\
+		map_height * 30, create_trgb(0, 255, 255, 255), \
+		"Game Over ESC to exit");
 	}
 }
 
@@ -46,14 +48,20 @@ int	my_key_hook(int keycode, t_game_data *game_data)
 {
 	if (keycode == KEY_ESC)
 		my_solong_exit(game_data);
-	else if (keycode == KEY_W || keycode == KEY_A || \
-	keycode == KEY_S || keycode == KEY_D)
+	else if ((keycode == KEY_W || keycode == KEY_A || \
+	keycode == KEY_S || keycode == KEY_D) && \
+	(!game_data->game_over))
 	{
 		if (move_event(keycode, game_data))
 		{
-			enemy_move_event(game_data);
 			draw_update(*game_data);
 			collision_check(game_data);
+			if (!game_data->game_over)
+			{
+				enemy_move_event(game_data);
+				draw_update(*game_data);
+				collision_check(game_data);
+			}
 		}
 	}
 	return (1);

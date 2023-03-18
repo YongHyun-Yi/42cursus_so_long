@@ -6,7 +6,7 @@
 #    By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/17 09:38:06 by yonghyle          #+#    #+#              #
-#    Updated: 2023/03/18 20:23:54 by yonghyle         ###   ########.fr        #
+#    Updated: 2023/03/19 01:43:34 by yonghyle         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -70,8 +70,10 @@ MANDATORY_OBJS = $(MANDATORY_SRCS:.c=.o)
 
 #-------------------------------------------
 
-BONUS_SRCS = $(wildcard bonus_srcs/*.c)
-# BONUS_SRCS = $(addprefix bonus_srcs/,\
+BONUS_SRCS = $(addprefix bonus_srcs/,\
+area_utils_bonus.c              event_utils_bonus.c             so_long_bonus.c \
+draw_utils_bonus.c              my_dfs_bonus.c                  valid_check_bonus.c \
+etc_utils_bonus.c               res_utils_bonus.c               valid_check_utils_bonus.c \
 )
 BONUS_OBJS = $(BONUS_SRCS:.c=.o)
 

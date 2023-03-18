@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:41:31 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/18 20:06:19 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/19 01:40:20 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,10 +70,10 @@ void	draw_update(t_game_data game_data)
 	draw_image(game_data.mlx_ptr, game_data.win_ptr, \
 	game_data.game_res.spr_enemy[game_data.spr_frame], \
 	game_data.enemy_pos);
-	mlx_string_put(game_data.mlx_ptr, game_data.win_ptr, 5, 15, \
+	mlx_string_put(game_data.mlx_ptr, game_data.win_ptr, 5, 20, \
 	create_trgb(0, 255, 255, 255), (char *)ui_text);
 	ui_count = ft_itoa(game_data.move_cnt);
-	mlx_string_put(game_data.mlx_ptr, game_data.win_ptr, TEST_OFFSET, 15, \
+	mlx_string_put(game_data.mlx_ptr, game_data.win_ptr, TEST_OFFSET, 20, \
 	create_trgb(0, 255, 255, 255), ui_count);
 	free(ui_count);
 }

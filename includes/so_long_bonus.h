@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 14:08:18 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/18 23:14:22 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/19 01:36:35 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ typedef struct s_game_data
 	char		**pat_arr;
 	int			remain_c;
 	int			move_cnt;
+	int			game_over;
 	id_t		spr_frame;
 	t_vec2d		player_pos;
 	t_vec2d		enemy_pos;
@@ -89,6 +90,7 @@ t_list **dfs_stack, t_vec2d *cur_pos);
 void	dfs_check_vertical(t_game_data game_data, char **visit_arr, \
 t_list **dfs_stack, t_vec2d *cur_pos);
 
+int		create_trgb(int t, int r, int g, int b);
 void	draw_image(void *mlx_ptr, void *win_ptr, t_img_data img_data, \
 t_vec2d pos);
 void	draw_horizontal(t_game_data game_data, int y);

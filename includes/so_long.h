@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 14:08:18 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 19:21:36 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/18 20:25:16 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 # include "get_next_line.h"
 
 # include "mlx.h"
-# include "os_keycode_define.h"
+# include "os_define.h"
 
 typedef struct s_vec2d
 {

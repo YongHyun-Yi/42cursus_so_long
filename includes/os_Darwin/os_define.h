@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   os_keycode_define.h                                :+:      :+:    :+:   */
+/*   os_define.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 14:10:08 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 14:12:02 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/18 20:26:16 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef OS_KEYCODE_DEFINE_H
-# define OS_KEYCODE_DEFINE_H
+#ifndef OS_DEFINE_H
+# define OS_DEFINE_H
 
 typedef enum e_keycode{
 	KEY_A = 0,

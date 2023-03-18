@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 14:08:18 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/18 15:28:19 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/18 20:25:21 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 # include "get_next_line.h"
 
 # include "mlx.h"
-# include "os_keycode_define.h"
+# include "os_define_bonus.h"
 
 typedef struct s_vec2d
 {
@@ -45,6 +45,7 @@ typedef struct s_game_res
 	t_img_data	spr_collectible;
 	t_img_data	spr_exit;
 	t_img_data	spr_player[2];
+	t_img_data	spr_enemy[2];
 }	t_game_res;
 
 typedef struct s_game_data
@@ -54,10 +55,12 @@ typedef struct s_game_data
 	int			map_width;
 	int			map_height;
 	char		**map_arr;
+	char		**pat_arr;
 	int			remain_c;
 	int			move_cnt;
 	id_t		spr_frame;
 	t_vec2d		player_pos;
+	t_vec2d		enemy_pos;
 	t_game_res	game_res;
 }	t_game_data;
 
@@ -95,7 +98,7 @@ void	free_game_res(void *mlx_ptr, t_game_res *game_res);
 int		load_xmp_file(void *mlx_ptr, t_img_data *img_data, char *path);
 
 int		my_key_hook(int keycode, t_game_data *game_data);
-void	move_event(int keycode, t_game_data *game_data);
+int		move_event(int keycode, t_game_data *game_data);
 
 int		my_solong_exit(t_game_data *game_data);
 void	my_solong_error(t_game_data *game_data, char *err_msg);

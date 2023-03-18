@@ -1,17 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   os_keycode_define_bonus.h                          :+:      :+:    :+:   */
+/*   os_define_bonus.h                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 14:10:08 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 15:02:04 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/18 20:26:22 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef OS_KEYCODE_DEFINE_BONUS_H
-# define OS_KEYCODE_DEFINE_BONUS_H
+#ifndef OS_DEFINE_BONUS_H
+# define OS_DEFINE_BONUS_H
+
+# define TEST_OFFSET 120
 
 typedef enum e_keycode{
 	KEY_A = 0,

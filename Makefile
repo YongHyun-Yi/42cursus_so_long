@@ -6,7 +6,7 @@
 #    By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/17 09:38:06 by yonghyle          #+#    #+#              #
-#    Updated: 2023/03/17 19:57:37 by yonghyle         ###   ########.fr        #
+#    Updated: 2023/03/18 20:23:54 by yonghyle         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -96,7 +96,7 @@ $(LIBFT_A):
 $(MLX_A):
 		@make --no-print-directory -C $(MLX_DIR)
 ifeq ($(UNAME), Darwin)
-	install_name_tool -id $(MLX_A) $(MLX_A)
+	@install_name_tool -id $(MLX_A) $(MLX_A)
 endif
 
 bonus: $(BONUS_NAME)

@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:42:23 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 15:06:02 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/18 18:56:32 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,10 @@ void	load_game_res(t_game_data *game_data)
 	&game_res->spr_exit, "./res/sprite/exit.xpm") || \
 	!load_xmp_file(mlx_ptr, &game_res->spr_player[0], \
 	"./res/sprite/player1.xpm") || !load_xmp_file(mlx_ptr, \
-	&game_res->spr_player[1], "./res/sprite/player2.xpm"))
+	&game_res->spr_player[1], "./res/sprite/player2.xpm") \
+	|| !load_xmp_file(mlx_ptr, &game_res->spr_enemy[0], \
+	"./res/sprite/enemy1.xpm") || !load_xmp_file(mlx_ptr, \
+	&game_res->spr_enemy[1], "./res/sprite/enemy2.xpm"))
 		my_solong_error(game_data, "Failed to load game resources.\n");
 }
 

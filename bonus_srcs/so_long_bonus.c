@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 11:34:40 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 15:06:11 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/18 15:29:34 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ t_list	*gnl_to_list(char *map_file_path, t_game_data *game_data)
 int	main(int argc, char *argv[])
 {
 	t_game_data	game_data;
+	time_t		t;
 
 	ft_bzero(&game_data, sizeof(t_game_data));
 	if (argc != 2)
@@ -102,6 +103,7 @@ int	main(int argc, char *argv[])
 	game_data.mlx_ptr = mlx_init();
 	game_data.win_ptr = mlx_new_window(game_data.mlx_ptr, \
 	game_data.map_width * 32, game_data.map_height * 32, "so_long");
+	srand((unsigned) time(&t));
 	load_game_res(&game_data);
 	draw_update(game_data);
 	mlx_key_hook(game_data.win_ptr, my_key_hook, &game_data);

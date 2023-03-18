@@ -6,13 +6,13 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:43:36 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/17 20:46:31 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/18 15:17:38 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long_bonus.h"
 
-void enemy_move_event(t_game_data *game_data)
+void	enemy_move_event(t_game_data *game_data)
 {
 	// rand 함수로 방향을 지정
 	// 이동가능한지 확인
@@ -20,6 +20,7 @@ void enemy_move_event(t_game_data *game_data)
 	// 이동가능하면 이동
 	// 모든 enemy가 이동했다면 draw를 업데이트
 	// 플레이어와 만났다면 잠시 대기후 종료
+	game_data = NULL;
 }
 
 int	my_key_hook(int keycode, t_game_data *game_data)

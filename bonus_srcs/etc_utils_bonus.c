@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/17 13:40:47 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/03/18 23:11:43 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/03/19 01:48:40 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@ int	my_solong_exit(t_game_data *game_data)
 {
 	if (game_data->map_arr)
 		free_double_arr(game_data->map_arr, game_data->map_height);
+	if (game_data->pat_arr)
+		free_double_arr(game_data->pat_arr, game_data->map_height);
 	free_game_res(game_data->mlx_ptr, &game_data->game_res);
 	if (game_data->win_ptr)
 		mlx_destroy_window(game_data->mlx_ptr, game_data->win_ptr);
@@ -47,6 +49,8 @@ void	my_solong_error(t_game_data *game_data, char *err_msg)
 {
 	if (game_data->map_arr)
 		free_double_arr(game_data->map_arr, game_data->map_height);
+	if (game_data->pat_arr)
+		free_double_arr(game_data->pat_arr, game_data->map_height);
 	free_game_res(game_data->mlx_ptr, &game_data->game_res);
 	if (game_data->win_ptr)
 		mlx_destroy_window(game_data->mlx_ptr, game_data->win_ptr);
